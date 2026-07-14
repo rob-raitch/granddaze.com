@@ -34,8 +34,4 @@ export default defineConfig({
   ],
   site: 'https://rob-raitch.github.io',
   base: '/granddaze.com',
-  build: {
-    format: 'file' // This changes output from /styleguide/index.html to /styleguide.html
-  },
-  trailingSlash: 'always',
 });
