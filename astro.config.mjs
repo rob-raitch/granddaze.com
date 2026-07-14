@@ -32,4 +32,6 @@ export default defineConfig({
       },
     },
   ],
+  site: 'https://granddaze.com',
+  base: process.env.GITHUB_ACTIONS ? '/granddaze.com/' : '/',
 });
