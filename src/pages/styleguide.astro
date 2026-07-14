@@ -1,0 +1,425 @@
+---
+import { Image } from 'astro:assets';
+import { Font } from 'astro:assets';
+
+// Stylesheet
+import '../styles/global.css';
+
+// Logo Imports
+import logoFullColor from '../assets/logos/grand-daze-logo-full-color-rgb-900px-w-300ppi.png';
+import logoHunter from '../assets/logos/grand-daze-logo-hunter-rgb-900px-w-300ppi.png';
+import logoBlack from '../assets/logos/grand-daze-logo-black-rgb-900px-w-300ppi.png';
+import logoWhite from '../assets/logos/grand-daze-logo-white-rgb-900px-w-300ppi.png';
+
+// Emblem Imports
+import emblemFullColor from '../assets/logos/grand-daze-logo-emblem-full-color-rgb-900px-w-300ppi.png';
+import emblemHunter from '../assets/logos/grand-daze-logo-emblem-hunter-rgb-900px-w-300ppi.png';
+import emblemBlack from '../assets/logos/grand-daze-logo-emblem-black-rgb-900px-w-300ppi.png';
+import emblemWhite from '../assets/logos/grand-daze-logo-emblem-white-rgb-900px-w-300ppi.png';
+
+// Square Logo Imports
+import squareFullColor from '../assets/logos/grand-daze-square-logo-full-color-rgb-900px-w-300ppi.png';
+import squareHunter from '../assets/logos/grand-daze-square-logo-hunter-rgb-900px-w-300ppi.png';
+import squareBlack from '../assets/logos/grand-daze-square-logo-black-rgb-900px-w-300ppi.png';
+import squareWhite from '../assets/logos/grand-daze-square-logo-white-rgb-900px-w-300ppi.png';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Grand Daze — Brand Style Guide</title>
+		
+		<!-- Preload and initialize brand fonts -->
+		<Font cssVariable="--font-alcemo" />
+		<Font cssVariable="--font-grandharbor" />
+	</head>
+	<body>
+		<header class="hero">
+			<div class="container">
+				<div class="hero-inner">
+					<span class="brand-accent hero-sub">Style Guide & Asset Hub</span>
+					<h1 class="hero-title">GRAND DAZE</h1>
+					<p class="hero-desc">Bespoke digital design system, typography, colors, and logos.</p>
+				</div>
+			</div>
+		</header>
+
+		<main class="container">
+			<!-- Section: Typography -->
+			<section class="section">
+				<h2 class="section-title">Typography</h2>
+				<div class="card font-showcase">
+					<div class="font-block">
+						<span class="font-label">Display Font</span>
+						<h3 class="display-sample text-alcemo">Alcemo Display</h3>
+						<p class="font-desc">A premium display typeface used for main headlines and branding elements.</p>
+						<div class="char-spec text-alcemo">A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</div>
+					</div>
+					
+					<hr class="divider" />
+					
+					<div class="font-block">
+						<span class="font-label">Accent Script</span>
+						<h3 class="display-sample text-grandharbor brand-accent">Grand Harbor</h3>
+						<p class="font-desc">A decorative cursive typeface for callouts, taglines, and elegant sub-headings.</p>
+						<div class="char-spec text-grandharbor brand-accent">A b c d e f g h i j k l m n o p q r s t u v w x y z</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section: Colors -->
+			<section class="section">
+				<h2 class="section-title">Color Palette</h2>
+				<div class="color-grid">
+					<!-- Blue Dianne -->
+					<div class="color-card" style="--card-color: var(--color-blue-dianne); --text-color: var(--color-text-light);">
+						<div class="color-swatch"></div>
+						<div class="color-info">
+							<h3>Blue Dianne</h3>
+							<code>#2A494C</code>
+							<p>Primary Dark Teal</p>
+						</div>
+					</div>
+
+					<!-- William -->
+					<div class="color-card" style="--card-color: var(--color-william); --text-color: var(--color-text-light);">
+						<div class="color-swatch"></div>
+						<div class="color-info">
+							<h3>William</h3>
+							<code>#44696F</code>
+							<p>Secondary Slate Blue</p>
+						</div>
+					</div>
+
+					<!-- Hunter -->
+					<div class="color-card" style="--card-color: var(--color-hunter); --text-color: var(--color-text-light);">
+						<div class="color-swatch"></div>
+						<div class="color-info">
+							<h3>Hunter</h3>
+							<code>#464A22</code>
+							<p>Primary Deep Olive</p>
+						</div>
+					</div>
+
+					<!-- Dingley -->
+					<div class="color-card" style="--card-color: var(--color-dingley); --text-color: var(--color-text-light);">
+						<div class="color-swatch"></div>
+						<div class="color-info">
+							<h3>Dingley</h3>
+							<code>#677C48</code>
+							<p>Secondary Medium Olive</p>
+						</div>
+					</div>
+
+					<!-- Summer Green -->
+					<div class="color-card" style="--card-color: var(--color-summer-green); --text-color: var(--color-text-dark);">
+						<div class="color-swatch"></div>
+						<div class="color-info">
+							<h3>Summer Green</h3>
+							<code>#A1B8AA</code>
+							<p>Soft Sage Accent</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section: Logos -->
+			<section class="section">
+				<h2 class="section-title">Logo Assets</h2>
+				
+				<h3 class="subsection-title">Full Wordmarks</h3>
+				<div class="logo-display-grid">
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Full Color</span>
+						<Image src={logoFullColor} alt="Grand Daze Full Color Logo" width={320} />
+					</div>
+					<div class="logo-panel panel-hunter">
+						<span class="panel-label text-light">White (On Hunter Background)</span>
+						<Image src={logoWhite} alt="Grand Daze White Logo" width={320} />
+					</div>
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Hunter Green</span>
+						<Image src={logoHunter} alt="Grand Daze Hunter Logo" width={320} />
+					</div>
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Solid Black</span>
+						<Image src={logoBlack} alt="Grand Daze Black Logo" width={320} />
+					</div>
+				</div>
+
+				<h3 class="subsection-title">Emblems</h3>
+				<div class="logo-display-grid grid-emblem">
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Full Color</span>
+						<Image src={emblemFullColor} alt="Grand Daze Emblem Full Color" width={180} />
+					</div>
+					<div class="logo-panel panel-hunter">
+						<span class="panel-label text-light">White</span>
+						<Image src={emblemWhite} alt="Grand Daze Emblem White" width={180} />
+					</div>
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Hunter Green</span>
+						<Image src={emblemHunter} alt="Grand Daze Emblem Hunter" width={180} />
+					</div>
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Solid Black</span>
+						<Image src={emblemBlack} alt="Grand Daze Emblem Black" width={180} />
+					</div>
+				</div>
+
+				<h3 class="subsection-title">Square Logos</h3>
+				<div class="logo-display-grid grid-emblem">
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Full Color</span>
+						<Image src={squareFullColor} alt="Grand Daze Square Full Color" width={180} />
+					</div>
+					<div class="logo-panel panel-hunter">
+						<span class="panel-label text-light">White</span>
+						<Image src={squareWhite} alt="Grand Daze Square White" width={180} />
+					</div>
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Hunter Green</span>
+						<Image src={squareHunter} alt="Grand Daze Square Hunter" width={180} />
+					</div>
+					<div class="logo-panel panel-light">
+						<span class="panel-label">Solid Black</span>
+						<Image src={squareBlack} alt="Grand Daze Square Black" width={180} />
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<div class="container">
+				<p>&copy; {new Date().getFullYear()} Grand Daze. All assets loaded locally and optimized using Astro.</p>
+			</div>
+		</footer>
+	</body>
+</html>
+
+<style>
+	/* Page Layout Styles */
+	.container {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 24px;
+	}
+
+	.hero {
+		background: linear-gradient(135deg, var(--color-blue-dianne) 0%, var(--color-bg-dark) 100%);
+		color: var(--color-text-light);
+		padding: 80px 0;
+		text-align: center;
+		border-bottom: 4px solid var(--color-hunter);
+	}
+
+	.hero-sub {
+		display: block;
+		font-size: 1.5rem;
+		color: var(--color-summer-green);
+		margin-bottom: 12px;
+	}
+
+	.hero-title {
+		font-size: clamp(3rem, 8vw, 5.5rem);
+		letter-spacing: 0.1em;
+		margin-bottom: 16px;
+	}
+
+	.hero-desc {
+		font-size: 1.25rem;
+		color: var(--color-summer-green);
+		max-width: 600px;
+		margin: 0 auto;
+		opacity: 0.9;
+	}
+
+	.section {
+		padding: 60px 0;
+	}
+
+	.section-title {
+		font-size: 2.25rem;
+		color: var(--color-blue-dianne);
+		margin-bottom: 32px;
+		border-bottom: 2px solid var(--color-summer-green);
+		padding-bottom: 12px;
+	}
+
+	.subsection-title {
+		font-size: 1.5rem;
+		color: var(--color-blue-dianne);
+		margin: 40px 0 20px;
+		font-family: var(--font-family-display);
+	}
+
+	/* Card / Font Showcase */
+	.card {
+		background-color: white;
+		border-radius: var(--border-radius-md);
+		box-shadow: 0 10px 30px rgba(42, 73, 76, 0.05);
+		padding: 40px;
+		border: 1px solid rgba(161, 184, 170, 0.2);
+	}
+
+	.font-block {
+		margin-bottom: 24px;
+	}
+
+	.font-label {
+		display: inline-block;
+		text-transform: uppercase;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
+		color: var(--color-text-muted);
+		margin-bottom: 8px;
+		font-weight: 600;
+	}
+
+	.display-sample {
+		font-size: clamp(2.5rem, 5vw, 4.5rem);
+		margin-bottom: 8px;
+		color: var(--color-blue-dianne);
+	}
+
+	.text-alcemo {
+		font-family: var(--font-family-display);
+	}
+
+	.text-grandharbor {
+		font-family: var(--font-family-accent);
+	}
+
+	.font-desc {
+		color: var(--color-text-muted);
+		margin-bottom: 16px;
+		max-width: 700px;
+	}
+
+	.char-spec {
+		font-size: 1.25rem;
+		word-break: break-all;
+		color: var(--color-william);
+		letter-spacing: 0.15em;
+		opacity: 0.8;
+	}
+
+	.divider {
+		border: 0;
+		height: 1px;
+		background: linear-gradient(90deg, rgba(161, 184, 170, 0.1) 0%, rgba(161, 184, 170, 0.6) 50%, rgba(161, 184, 170, 0.1) 100%);
+		margin: 40px 0;
+	}
+
+	/* Colors */
+	.color-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 24px;
+	}
+
+	.color-card {
+		background-color: white;
+		border-radius: var(--border-radius-md);
+		overflow: hidden;
+		box-shadow: 0 10px 30px rgba(42, 73, 76, 0.05);
+		border: 1px solid rgba(161, 184, 170, 0.2);
+		transition: transform var(--transition-smooth);
+	}
+
+	.color-card:hover {
+		transform: translateY(-8px);
+	}
+
+	.color-swatch {
+		height: 140px;
+		background-color: var(--card-color);
+	}
+
+	.color-info {
+		padding: 20px;
+		color: var(--color-text-dark);
+	}
+
+	.color-info h3 {
+		font-size: 1.25rem;
+		margin-bottom: 4px;
+	}
+
+	.color-info code {
+		display: block;
+		font-size: 0.9rem;
+		color: var(--color-william);
+		margin-bottom: 8px;
+		font-family: monospace;
+	}
+
+	.color-info p {
+		font-size: 0.85rem;
+		color: var(--color-text-muted);
+	}
+
+	/* Logos & Panels */
+	.logo-display-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 24px;
+		margin-bottom: 24px;
+	}
+
+	.grid-emblem {
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	}
+
+	.logo-panel {
+		position: relative;
+		border-radius: var(--border-radius-md);
+		padding: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 240px;
+		box-shadow: 0 10px 30px rgba(42, 73, 76, 0.05);
+		border: 1px solid rgba(161, 184, 170, 0.2);
+		overflow: hidden;
+	}
+
+	.panel-light {
+		background-color: #ffffff;
+	}
+
+	.panel-hunter {
+		background-color: var(--color-hunter);
+	}
+
+	.panel-label {
+		position: absolute;
+		top: 16px;
+		left: 20px;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-text-muted);
+		font-weight: 600;
+	}
+
+	.text-light {
+		color: var(--color-summer-green) !important;
+	}
+
+	/* Footer */
+	.footer {
+		background-color: var(--color-blue-dianne);
+		color: var(--color-text-light);
+		padding: 40px 0;
+		text-align: center;
+		margin-top: 80px;
+		font-size: 0.9rem;
+		opacity: 0.9;
+	}
+</style>
