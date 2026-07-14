@@ -36,6 +36,6 @@ export default defineConfig({
   base: '/granddaze.com',
   build: {
     format: 'file' // This changes output from /styleguide/index.html to /styleguide.html
-  }
+  },
   trailingSlash: 'always',
 });
