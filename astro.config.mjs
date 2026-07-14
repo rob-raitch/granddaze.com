@@ -33,7 +33,7 @@ export default defineConfig({
     },
   ],
   site: 'https://granddaze.com',
-  base: process.env.GITHUB_ACTIONS ? '/granddaze.com/' : '/',
+  //base: process.env.GITHUB_ACTIONS ? '/granddaze.com/' : '/',
   // Forces Astro to match how GitHub Pages resolves route paths
   trailingSlash: 'always',
 });
