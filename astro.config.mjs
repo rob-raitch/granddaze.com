@@ -32,8 +32,10 @@ export default defineConfig({
       },
     },
   ],
-  site: 'https://granddaze.com',
-  //base: process.env.GITHUB_ACTIONS ? '/granddaze.com/' : '/',
-  // Forces Astro to match how GitHub Pages resolves route paths
+  site: 'https://rob-raitch.github.io',
+  base: '/granddaze.com',
+  build: {
+    format: 'file' // This changes output from /styleguide/index.html to /styleguide.html
+  }
   trailingSlash: 'always',
 });
