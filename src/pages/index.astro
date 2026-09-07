@@ -1,19 +1,24 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import logotypeWhite from '../assets/logos/grand-daze-logotype-white-rgb-900px-w-300ppi.png';
+import heroMark from '../assets/images/grand-daze-both-levels-stylized.webp';
+import heroMarkAlt from '../assets/images/grand-daze-waterfront.webp';
 ---
 
 <Layout title="Home" activeRoute="/" description="Grand Daze — a family Bahamian retreat, coming soon.">
 	<section class="home-hero">
 		<div class="home-hero-copy">
-			<p class="eyebrow">A family Bahamian retreat</p>
-			<h1>Come as you are.<br /><em>Stay awhile.</em></h1>
+			<p class="eyebrow">Luxury inspired family retreat</p>
+			<h1>Elbow Cay<br /><em>Abacos, Bahamas</em></h1>
 			<p class="lede">Grand Daze is a place for sun-soaked days, shared meals, and making memories at an unhurried pace.</p>
 			<a class="button-link" href={`${import.meta.env.BASE_URL}explore`}>Begin exploring <span aria-hidden="true">↗</span></a>
 		</div>
 		<div class="home-hero-mark">
-			<Image src={logotypeWhite} alt="Grand Daze" width={360} />
+			<div class="hero-mark-image">
+				<Image src={heroMark} alt="Grand Daze" width={560} />
+				<Image src={heroMarkAlt} alt="" width={560} class="hero-mark-image-alt" />
+				<span class="hero-mark-tagline">From plans to reality</span>
+			</div>
 			<span>Coming soon</span>
 		</div>
 	</section>
