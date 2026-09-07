@@ -1,47 +1,60 @@
-# Rob Aitchison
+# Grand Daze
 
-This is a project for the property owners started as an Antigravity project.
+Grand Daze is a Bahamas destination website built with Astro. It is a sister
+site to Creekside Daze and shares its restrained editorial structure while
+keeping Grand Daze's own visual identity.
 
-# Astro Starter Kit: Minimal
+## Routes
+
+| Route | Purpose |
+| :--- | :--- |
+| `/` | Landing page |
+| `/explore` | Destination overview |
+| `/guide` | Guest resources and local links |
+| `/credits` | Site and creative credits |
+| `/styleguide` | Brand, typography, color, and asset reference |
+
+## Brand system
+
+The site uses two local display fonts registered through Astro:
+
+- **Alcemo** for display headings and primary typography
+- **GrandHarbor** for accent text and expressive details
+
+Shared color and layout tokens are defined in
+[`src/styles/global.css`](src/styles/global.css). Logo variants and font files
+are kept in `src/assets/`.
+
+## Development
+
+Install dependencies and start the local development server:
 
 ```sh
-npm create astro@latest -- --template minimal
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The site is available at `http://localhost:4321`.
 
-## 🚀 Project Structure
+Build the static site for production:
 
-Inside of your Astro project, you'll see the following folders and files:
+```sh
+npm run build
+```
+
+The generated site is written to `dist/`. Use `npm run preview` to preview the
+production build locally.
+
+## Project structure
 
 ```text
 /
-├── public/
+├── public/              # Static assets
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── assets/          # Fonts and logo assets
+│   ├── layouts/         # Shared navigation and footer shell
+│   ├── pages/           # Astro routes
+│   └── styles/          # Global design tokens and styles
+├── astro.config.mjs
 └── package.json
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
