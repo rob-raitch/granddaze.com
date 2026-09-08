@@ -226,7 +226,3 @@ h1 em, h2 em { font-family: var(--font-family-accent); font-style: normal; font-
   .link-card-grid, .teaser-grid { grid-template-columns: 1fr; }.site-footer { align-items: flex-start; gap: 24px; }
   .site-footer-links { align-items: flex-start; flex-direction: column; gap: 18px; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .home-hero-mark .hero-mark-tagline, .home-hero-mark .hero-mark-image-alt { animation: none; }
-}
