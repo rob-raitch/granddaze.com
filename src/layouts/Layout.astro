@@ -48,21 +48,97 @@ const currentYear = new Date().getFullYear();
 		</main>
 
 		<footer class="site-footer">
-			<div class="site-footer-brand">
-				<Image src={logoMarkWhite} alt="Grand Daze" width={52} class="site-footer-logo" />
-				<small>&copy; {currentYear} Grand Daze. All rights reserved.</small>
-			</div>
-			<div class="site-footer-links">
-				<div class="social-links" aria-label="Social media">
-					<a href="https://www.facebook.com/people/Grand-daze-Bahamas/61564691083087/" target="_blank" rel="noreferrer" aria-label="Facebook">
-						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-3.3 0-5 1.9-5 5v3H6v4h3v6h4v-6h3l1-4h-4V9c0-.7.3-1 1-1Z" /></svg>
-					</a>
-					<a href="https://www.instagram.com/grand_daze_bahamas" target="_blank" rel="noreferrer" aria-label="Instagram">
-						<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r=".75" class="social-dot" /></svg>
-					</a>
+			<div class="site-footer-content">
+				<span class="site-footer-subtitle">Looking for a different view?</span>
+				<h2>Visit Creekside Daze</h2>
+				<p>Our sister property in the mountains offers a different kind of escape.</p>
+				<a class="site-footer-button" href="https://creeksidedaze.com" target="_blank" rel="noopener noreferrer">Creekside Daze <span aria-hidden="true">↗</span></a>
+				<div class="site-footer-links">
+					<div class="social-links" aria-label="Social media">
+						<a href="https://www.instagram.com/grand_daze_bahamas" target="_blank" rel="noreferrer" aria-label="Instagram">
+							<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+						</a>
+						<a href="https://www.facebook.com/people/Grand-daze-Bahamas/61564691083087/" target="_blank" rel="noreferrer" aria-label="Facebook">
+							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3Z" /></svg>
+						</a>
+						<a href={href('/credits')}>Credits</a>
+					</div>
+					<div class="site-footer-copyright">
+						<Image src={logoMarkWhite} alt="" width={32} class="site-footer-logo" />
+						<small>&copy; {currentYear} Grand Daze. All rights reserved.</small>
+					</div>
 				</div>
-				<a href={href('/credits')}>Credits <span aria-hidden="true"></span></a>
 			</div>
 		</footer>
+
+		<div class="image-viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Image viewer">
+			<button class="image-viewer-close" type="button" aria-label="Close image viewer">&times;</button>
+			<button class="image-viewer-control image-viewer-previous" type="button" aria-label="Previous image">&#8592;</button>
+			<figure class="image-viewer-figure">
+				<img class="image-viewer-image" alt="" />
+				<figcaption class="image-viewer-caption"></figcaption>
+			</figure>
+			<button class="image-viewer-control image-viewer-next" type="button" aria-label="Next image">&#8594;</button>
+		</div>
+
+		<script>
+			const viewer = document.querySelector('.image-viewer');
+			const viewerImage = viewer?.querySelector('.image-viewer-image');
+			const viewerCaption = viewer?.querySelector('.image-viewer-caption');
+			const galleryImages = Array.from(document.querySelectorAll('main img'));
+			let activeImageIndex = 0;
+
+			const updateViewer = () => {
+				const image = galleryImages[activeImageIndex];
+				if (!image || !viewerImage || !viewerCaption) return;
+				viewerImage.src = image.currentSrc || image.src;
+				viewerImage.alt = image.alt;
+				viewerCaption.textContent = image.alt;
+			};
+
+			const closeViewer = () => {
+				viewer?.classList.remove('is-open');
+				viewer?.setAttribute('aria-hidden', 'true');
+				document.body.classList.remove('is-viewer-open');
+			};
+
+			const moveViewer = (direction: number) => {
+				activeImageIndex = (activeImageIndex + direction + galleryImages.length) % galleryImages.length;
+				updateViewer();
+			};
+
+			galleryImages.forEach((image, index) => {
+				image.classList.add('image-viewer-trigger');
+				image.setAttribute('tabindex', '0');
+				image.setAttribute('role', 'button');
+				const openViewer = () => {
+					activeImageIndex = index;
+					updateViewer();
+					viewer?.classList.add('is-open');
+					viewer?.setAttribute('aria-hidden', 'false');
+					document.body.classList.add('is-viewer-open');
+				};
+				image.addEventListener('click', openViewer);
+				image.addEventListener('keydown', (event) => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						openViewer();
+					}
+				});
+			});
+
+			viewer?.querySelector('.image-viewer-close')?.addEventListener('click', closeViewer);
+			viewer?.querySelector('.image-viewer-previous')?.addEventListener('click', () => moveViewer(-1));
+			viewer?.querySelector('.image-viewer-next')?.addEventListener('click', () => moveViewer(1));
+			viewer?.addEventListener('click', (event) => {
+				if (event.target === viewer) closeViewer();
+			});
+			document.addEventListener('keydown', (event) => {
+				if (!viewer?.classList.contains('is-open')) return;
+				if (event.key === 'Escape') closeViewer();
+				if (event.key === 'ArrowLeft') moveViewer(-1);
+				if (event.key === 'ArrowRight') moveViewer(1);
+			});
+		</script>
 	</body>
 </html>

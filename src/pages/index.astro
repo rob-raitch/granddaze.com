@@ -1,8 +1,19 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import heroMark from '../assets/images/grand-daze-both-levels-stylized.webp';
-import heroMarkAlt from '../assets/images/grand-daze-waterfront.webp';
+import downstairs from '../assets/images/downstairs.webp';
+import bedroomTwo from '../assets/images/bedroom2.webp';
+import bedroomThree from '../assets/images/bedroom3.webp';
+import laundry3 from '../assets/images/laundry3.webp';
+import primaryBedroom from '../assets/images/primary-bedroom.webp';
+
+const heroGallery = [
+	{ src: downstairs, alt: 'The downstairs living space', label: 'Room to gather' },
+	{ src: bedroomTwo, alt: 'The second bedroom', label: 'A place to unwind' },
+	{ src: bedroomThree, alt: 'The third bedroom', label: 'Stay awhile' },
+    { src: laundry3, alt: 'Laundry area', label: 'Everything you need' },
+    { src: primaryBedroom, alt: 'Master Suite', label: 'Relaxation' },
+];
 ---
 
 <Layout title="Home" activeRoute="/" description="Grand Daze — a family Bahamian retreat, coming soon.">
@@ -11,22 +22,24 @@ import heroMarkAlt from '../assets/images/grand-daze-waterfront.webp';
 			<p class="eyebrow">Luxury inspired family retreat</p>
 			<h1>Elbow Cay<br /><em>Abacos, Bahamas</em></h1>
 			<p class="lede">Grand Daze is a place for sun-soaked days, shared meals, and making memories at an unhurried pace.</p>
-			<a class="button-link" href={`${import.meta.env.BASE_URL}explore`}>Begin exploring <span aria-hidden="true">↗</span></a>
+			<a class="button-link" href={`${import.meta.env.BASE_URL}/explore/`}>Begin exploring <span aria-hidden="true">↗</span></a>
 		</div>
 		<div class="home-hero-mark">
-			<div class="hero-mark-image">
-				<Image src={heroMark} alt="Grand Daze" width={560} />
-				<Image src={heroMarkAlt} alt="" width={560} class="hero-mark-image-alt" />
-				<span class="hero-mark-tagline">From plans to reality</span>
+			<div class="hero-gallery">
+				{heroGallery.map((image, index) => (
+					<div class={`hero-gallery-card hero-gallery-card-${index + 1}`}>
+						<Image src={image.src} alt={image.alt} width={560} />
+						<span>{image.label}</span>
+					</div>
+				))}
 			</div>
-            <span>Booking Calendar</span>
-			<span>Coming Soon</span>
+			<span>Click any image for a closer look</span>
 		</div>
 	</section>
 	<section class="home-note">
 		<p class="eyebrow">Another memorable daze</p>
 		<h2>Bringing you the Bahamas vibe</h2>
 		<p>We are building Grand Daze with the same spirit we hope to share: warm, easy, and full of possibility.</p>
-	    <p>Please visit our sister property<a href="https://creeksidedaze.com" target="_blank" rel="noopener noreferrer"> Creekside Daze</a> for a mountain retreat.</p>
+	    <p>Booking Calendar coming soon!</p>
     </section>
 </Layout>
