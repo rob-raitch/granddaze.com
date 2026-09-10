@@ -1,15 +1,59 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import emblemWhite from '../assets/logos/grand-daze-logo-emblem-white-rgb-900px-w-300ppi.png';
+import primaryBedroom from '../assets/images/primary-bedroom.webp';
+import primaryBedroomTwo from '../assets/images/primary-bedroom2.webp';
+import primaryBedroomEnsuite from '../assets/images/primary-bedroom-ensuite.webp';
+import bedroom2 from '../assets/images/bedroom2.webp';
+import bedroom2ensuite from '../assets/images/bedroom2-ensuite.webp';
+import bedroom3 from '../assets/images/bedroom3.webp';
+import bedroom3ensuite from '../assets/images/bedroom3-ensuite.webp';
+import downstairs from '../assets/images/downstairs.webp';
+import laundry3 from '../assets/images/laundry3.webp';
 
-const destinationImages = Object.values(
-	import.meta.glob('../assets/images/*.{jpg,jpeg,png,webp,avif}', {
-		eager: true,
-		import: 'default',
-		query: '?url',
-	}),
-);
+const destinationFeatures = [
+	{
+		images: [
+			{ src: primaryBedroomEnsuite, alt: 'Master bedroom ensuite bath' },
+			{ src: primaryBedroomTwo, alt: 'Master bedroom seating area' },
+			{ src: primaryBedroom, alt: 'Master bedroom' },
+		],
+		label: 'Master Suite',
+		eyebrow: 'Stay awhile',
+		title: 'Wake up somewhere worth lingering.',
+		description: 'Light-filled rooms, soft textures, and a view that makes slow mornings feel effortless.',
+	},
+	{
+		images: [
+			{ src: bedroom2ensuite, alt: 'Second bedroom ensuite bath' },
+			{ src: bedroom2, alt: 'Second bedroom' },
+		],
+		label: 'Second bedroom',
+		eyebrow: 'Make it yours',
+		title: 'A generous place to land.',
+		description: 'Every corner is designed for easy days, shared stories, and time together.',
+	},
+    {
+		images: [
+			{ src: bedroom3ensuite, alt: 'Third bedroom ensuite bath' },
+			{ src: bedroom3, alt: 'Third bedroom' },
+		],
+		label: 'Third bedroom',
+		eyebrow: 'Settle in',
+		title: 'Details that make the difference.',
+		description: 'Thoughtful spaces give every day at Grand Daze a little more room to breathe.',
+	},
+    {
+		images: [
+			{ src: downstairs, alt: 'Downstairs' },
+			{ src: laundry3, alt: 'Laundry area' },
+		],
+		label: 'More previews',
+		eyebrow: 'Relax',
+		title: 'Around the villa.',
+		description: 'Everything for a perfect getaway.',
+	},
+];
 ---
 
 <Layout title="Explore" activeRoute="/explore" description="A first look at the spirit and setting of Grand Daze.">
@@ -19,27 +63,30 @@ const destinationImages = Object.values(
 		<p class="lede">Grand Daze is a relaxing home base for sunny days, memorable adventures, and the easy rhythm of the Bahamas.</p>
 	</section>
 
-	<section class="destination-feature" aria-labelledby="destination-title">
-		<div class="destination-art">
-			<div class="destination-images" aria-hidden="true">
-				{destinationImages.map((image, index) => (
-					<img src={image} alt="" class={`destination-image destination-image-${(index % 3) + 1}`} loading="lazy" />
-				))}
+	{destinationFeatures.map((feature, index) => (
+		<section class="destination-feature" aria-labelledby={`destination-title-${index + 1}`}>
+			<div class="destination-art">
+				<div class="destination-images">
+					{feature.images.map((image, imageIndex) => (
+						<Image
+							src={image.src}
+							alt={image.alt}
+							width={900}
+							class={`destination-image destination-image-${(imageIndex % 3) + 1}`}
+							loading="lazy"
+						/>
+					))}
+				</div>
+				<span class="feature-note">{feature.label}</span>
 			</div>
-			<div class="sun-glow"></div>
-			<div class="horizon"></div>
-			<div class="water-line water-line-one"></div>
-			<div class="water-line water-line-two"></div>
-			<Image src={emblemWhite} alt="" width={220} class="feature-emblem" />
-			<span class="feature-note">A place to<br />come back to</span>
-		</div>
-		<div class="feature-copy">
-			<p class="eyebrow">A sense of place</p>
-			<h2 id="destination-title">Somewhere between salt air and staying awhile.</h2>
-			<p>We are gathering the details now: the colors, the corners, and the small rituals that will make Grand Daze feel like yours from the moment you arrive.</p>
-			<a class="text-link" href={`${import.meta.env.BASE_URL}guide`}>Start with the local guide <span aria-hidden="true">↗</span></a>
-		</div>
-	</section>
+			<div class="feature-copy">
+				<p class="eyebrow">{feature.eyebrow}</p>
+				<h2 id={`destination-title-${index + 1}`}>{feature.title}</h2>
+				<p>{feature.description}</p>
+				<a class="text-link" href={`${import.meta.env.BASE_URL}/guide/`}>Start with the local guide <span aria-hidden="true">↗</span></a>
+			</div>
+		</section>
+	))}
 
 	<section class="content-teaser">
 		<p class="eyebrow">Coming into view</p>
