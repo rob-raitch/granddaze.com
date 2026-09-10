@@ -2,17 +2,30 @@
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import emblemWhite from '../assets/logos/grand-daze-logo-emblem-white-rgb-900px-w-300ppi.png';
+
+const destinationImages = Object.values(
+	import.meta.glob('../assets/images/*.{jpg,jpeg,png,webp,avif}', {
+		eager: true,
+		import: 'default',
+		query: '?url',
+	}),
+);
 ---
 
 <Layout title="Explore" activeRoute="/explore" description="A first look at the spirit and setting of Grand Daze.">
 	<section class="editorial-hero explore-intro">
 		<p class="eyebrow">The island, slowly revealed</p>
 		<h1>Make room for <em>more</em> than a getaway.</h1>
-		<p class="lede">Grand Daze is being imagined as a generous home base for sunny days, long tables, and the easy rhythm of the Bahamas.</p>
+		<p class="lede">Grand Daze is a relaxing home base for sunny days, memorable adventures, and the easy rhythm of the Bahamas.</p>
 	</section>
 
 	<section class="destination-feature" aria-labelledby="destination-title">
 		<div class="destination-art">
+			<div class="destination-images" aria-hidden="true">
+				{destinationImages.map((image, index) => (
+					<img src={image} alt="" class={`destination-image destination-image-${(index % 3) + 1}`} loading="lazy" />
+				))}
+			</div>
 			<div class="sun-glow"></div>
 			<div class="horizon"></div>
 			<div class="water-line water-line-one"></div>
