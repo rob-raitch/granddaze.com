@@ -1,14 +1,14 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import downstairs from '../assets/images/downstairs.webp';
+import mainLiving from '../assets/images/main-living.webp';
 import waterfront from '../assets/images/grand-daze-waterfront.webp';
 import rainbows from '../assets/images/exterior-rainbows.webp';
 import laundry3 from '../assets/images/laundry3.webp';
 import primaryBedroom from '../assets/images/primary-bedroom.webp';
 
 const heroGallery = [
-	{ src: downstairs, alt: 'The downstairs living space', label: 'Room to gather' },
+	{ src: mainLiving, alt: 'The upper living space', label: 'Room to gather' },
 	{ src: waterfront, alt: 'View from the water', label: 'A place to unwind' },
 	{ src: rainbows, alt: 'Rainbows and beaches', label: 'Paradise' },
     { src: laundry3, alt: 'Laundry area', label: 'Everything you need' },
@@ -16,7 +16,7 @@ const heroGallery = [
 ];
 ---
 
-<Layout title="Home" activeRoute="/" description="Grand Daze — a family Bahamian retreat, coming soon.">
+<Layout title="Home" activeRoute="/" description="Grand Daze — a family Bahamian Retreat.">
 	<section class="home-hero">
 		<div class="home-hero-copy">
 			<p class="eyebrow">Luxury inspired family retreat</p>
