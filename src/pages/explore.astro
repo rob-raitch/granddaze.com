@@ -10,8 +10,20 @@ import bedroom3 from '../assets/images/bedroom3.webp';
 import bedroom3ensuite from '../assets/images/bedroom3-ensuite.webp';
 import downstairs from '../assets/images/downstairs.webp';
 import laundry3 from '../assets/images/laundry3.webp';
+import mainLiving from '../assets/images/main-living.webp';
 
 const destinationFeatures = [
+    {
+		images: [
+			{ src: downstairs, alt: 'Lower living area' },
+			{ src: laundry3, alt: 'Laundry area' },
+            { src: mainLiving, alt: 'Upper living area' },
+		],
+		label: 'Family Getaway',
+		eyebrow: 'Relax',
+		title: 'Around the villa.',
+		description: 'Everything for a perfect getaway.',
+	},
 	{
 		images: [
 			{ src: primaryBedroomEnsuite, alt: 'Master bedroom ensuite bath' },
@@ -43,20 +55,10 @@ const destinationFeatures = [
 		title: 'Details that make the difference.',
 		description: 'Thoughtful spaces give every day at Grand Daze a little more room to breathe.',
 	},
-    {
-		images: [
-			{ src: downstairs, alt: 'Downstairs' },
-			{ src: laundry3, alt: 'Laundry area' },
-		],
-		label: 'More previews',
-		eyebrow: 'Relax',
-		title: 'Around the villa.',
-		description: 'Everything for a perfect getaway.',
-	},
 ];
 ---
 
-<Layout title="Explore" activeRoute="/explore" description="A first look at the spirit and setting of Grand Daze.">
+<Layout title="Explore" activeRoute="/explore" description="Explore the spirit and setting of Grand Daze.">
 	<section class="editorial-hero explore-intro">
 		<p class="eyebrow">The island, slowly revealed</p>
 		<h1>Make room for <em>more</em> than a getaway.</h1>
