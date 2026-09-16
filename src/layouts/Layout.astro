@@ -3,6 +3,7 @@ import { Font, Image } from 'astro:assets';
 import '../styles/global.css';
 import logoTagline from '../assets/logos/grand-daze-logo-tagline-black-cmyk.svg';
 import logoMarkWhite from '../assets/logos/grand-daze-logo-mark-white-cmyk.svg';
+import creeksideDazeLogo from '../assets/logos/creekside-daze-logo.webp';
 
 interface Props {
 	title: string;
@@ -31,7 +32,7 @@ const currentYear = new Date().getFullYear();
 	<body>
 		<header class="site-header">
 			<a class="site-mark" href={href('/')} aria-label="Grand Daze home">
-				<Image src={logoTagline} alt="Grand Daze" width={150} class="site-logo" />
+				<Image src={logoTagline} alt="Grand Daze" width={225} class="site-logo" />
 			</a>
 			<nav class="site-nav" aria-label="Primary navigation">
 				<a class:list={{ 'is-active': activeRoute === '/' }} href={href('/')} aria-current={activeRoute === '/' ? 'page' : undefined}>
@@ -50,8 +51,9 @@ const currentYear = new Date().getFullYear();
 		<footer class="site-footer">
 			<div class="site-footer-content">
 				<span class="site-footer-subtitle">Looking for a different view?</span>
-				<h2>Visit Creekside Daze</h2>
-				<p>Our sister property in the mountains offers a different kind of escape.</p>
+				<div class="site-footer-brand">
+					<Image src={creeksideDazeLogo} alt="Creekside Daze" width={320} class="site-footer-brand-mark" />
+				</div>
 				<a class="site-footer-button" href="https://creeksidedaze.com" target="_blank" rel="noopener noreferrer">Creekside Daze <span aria-hidden="true">↗</span></a>
 				<div class="site-footer-links">
 					<div class="social-links" aria-label="Social media">

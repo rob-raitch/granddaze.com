@@ -93,7 +93,7 @@ a:hover {
 }
 
 .site-mark:hover { opacity: 0.72; }
-.site-logo { display: block; height: auto; width: 150px; }
+.site-logo { display: block; height: auto; width: 225px; }
 .site-nav { gap: clamp(16px, 3vw, 38px); }
 .site-nav a { color: var(--color-text-muted); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .site-nav a:hover, .site-nav a.is-active { color: var(--color-blue-dianne); }
@@ -113,8 +113,14 @@ a:hover {
 }
 .site-footer-content { margin: 0 auto; max-width: 600px; }
 .site-footer-subtitle { color: var(--color-summer-green); font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; }
-.site-footer h2 { color: var(--color-text-light); font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 16px 0; }
-.site-footer p { color: var(--color-summer-green); font-size: .9rem; margin-bottom: 30px; }
+.site-footer-brand { margin: 24px auto 30px; }
+.site-footer-brand-mark {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-width: min(100%, 440px);
+  width: 100%;
+}
 .site-footer-logo { display: block; height: auto; width: 32px; }
 .site-footer-button { border: 1px solid var(--color-text-light); color: var(--color-text-light); display: inline-block; padding: 14px 24px; text-transform: uppercase; font-size: .72rem; letter-spacing: .1em; }
 .site-footer-button:hover { background: var(--color-text-light); color: var(--color-blue-dianne); }
