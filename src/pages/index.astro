@@ -36,10 +36,19 @@ const heroGallery = [
 			<span>*Click any image for a closer look</span>
 		</div>
 	</section>
-	<section class="home-note">
+	<section class="home-note" aria-labelledby="home-note-title">
 		<p class="eyebrow">Another memorable daze</p>
-		<h2>Bringing you the Bahamas vibe</h2>
+		<h2 id="home-note-title">Bringing you the Bahamas vibe</h2>
 		<p>We are building Grand Daze with the same spirit we hope to share: warm, easy, and full of possibility.</p>
-	    <p>Booking Calendar coming soon!</p>
-    </section>
+		<p>Check our availability below:</p>
+		<div class="booking-calendar">
+			<div
+				class="ownerrez-widget"
+				data-propertyId="384c1e7356564b8fb2fb458f1d825871"
+				data-widget-type="Booking - Booking/Inquiry"
+				data-widgetId="1a81b1751f53404389bf7c7d75595d6b"
+			></div>
+		</div>
+	</section>
+	<script is:inline src="https://app.ownerrez.com/widget.js"></script>
 </Layout>
