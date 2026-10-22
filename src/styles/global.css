@@ -202,8 +202,10 @@ h1 em, h2 em { font-family: var(--font-family-accent); font-style: normal; font-
   100% { opacity: .12; z-index: 1; }
 }
 .home-note, .content-teaser { margin: 0 auto; max-width: 800px; padding: var(--spacing-section) 20px; text-align: center; }
+.home-note { max-width: 1100px; }
 .home-note h2, .content-teaser h2 { color: var(--color-blue-dianne); font-size: clamp(2.2rem, 5vw, 4.4rem); margin-bottom: 22px; }
-.home-note > p:last-child { color: var(--color-text-muted); margin: 0 auto; max-width: 500px; }
+.home-note > p:not(.eyebrow) { color: var(--color-text-muted); margin: 0 auto; max-width: 500px; }
+.booking-calendar { margin: 48px auto 0; width: 100%; }
 
 .editorial-hero { margin: 0 auto; max-width: 850px; padding: clamp(80px, 12vw, 150px) 20px clamp(70px, 10vw, 120px); }
 .editorial-hero h1 { color: var(--color-blue-dianne); margin-bottom: 26px; }
