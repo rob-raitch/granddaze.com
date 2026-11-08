@@ -111,11 +111,15 @@ const virtualItems = isVirtualized
 							data-image-viewer-ignore={!overlayPlayer ? '' : undefined}
 						/>
 					)}
-					<span class="orbit-card-shade" aria-hidden="true"></span>
-					<span class="orbit-card-content">
-						<span class="orbit-card-title">{item.title}</span>
-						{item.subtitle && <span class="orbit-card-subtitle">{item.subtitle}</span>}
-					</span>
+					{!virtualItems && (
+						<>
+							<span class="orbit-card-shade" aria-hidden="true"></span>
+							<span class="orbit-card-content">
+								<span class="orbit-card-title">{item.title}</span>
+								{item.subtitle && <span class="orbit-card-subtitle">{item.subtitle}</span>}
+							</span>
+						</>
+					)}
 				</button>
 			))}
 		</div>
@@ -199,18 +203,19 @@ const virtualItems = isVirtualized
 
 			if (virtualItems) {
 				const maxAngle = virtualStep * (cards.length - 1) / 2;
-				const radiusX = Math.max(0, stageWidth / 2 - cardWidth * 0.35);
+				const radiusX = Math.max(0, stageWidth / 2 - cardWidth * 0.35) * 0.97;
 				const radiusY = stageHeight * 0.22;
 				const radiusZ = Math.min(stageWidth * 0.3, 240);
 				const phase = virtualPhase / virtualStep;
+				const horizontalStep = cards.length > 1 ? radiusX * 2 / (cards.length - 1) : 0;
 
 				cards.forEach((card, index) => {
 					const angle = -maxAngle + (index - phase) * virtualStep;
 					const depth = Math.cos(angle);
-					const x = Math.sin(angle) * radiusX;
+					const x = -radiusX + index * horizontalStep - phase * horizontalStep;
 					const y = (1 - depth) * radiusY;
 					const z = depth * radiusZ;
-					const isPrimary = Math.abs(angle) <= virtualStep / 2;
+					const isPrimary = Math.abs(angle) <= virtualStep / 2 + 0.001;
 					const scale = (0.55 + depth * 0.45) * (isPrimary ? 1.18 : 1);
 					const rotation = index >= cards.length / 2 - 1 && index <= cards.length / 2
 						? 0
@@ -247,10 +252,9 @@ const virtualItems = isVirtualized
 			const index = (itemIndex + virtualItems.length) % virtualItems.length;
 			const item = virtualItems[index];
 			const image = card.querySelector<HTMLImageElement>('.orbit-card-image');
-			const title = card.querySelector<HTMLElement>('.orbit-card-title');
 			const subtitle = card.querySelector<HTMLElement>('.orbit-card-subtitle');
 
-			if (!item || !image || !title) {
+			if (!item || !image) {
 				throw new Error('OrbitCards could not update a virtual card.');
 			}
 
@@ -260,7 +264,6 @@ const virtualItems = isVirtualized
 			card.setAttribute('aria-label', `View details for ${item.title}`);
 			image.src = item.src;
 			image.dataset.viewerAlt = item.alt;
-			title.textContent = item.title;
 			if (subtitle) subtitle.textContent = '';
 		};
 
@@ -449,6 +452,7 @@ const virtualItems = isVirtualized
 
 	.orbit-section[data-orbit-items] .orbit-wrapper {
 		height: clamp(460px, 40vw, 520px);
+		max-width: 1100px;
 	}
 
 	.orbit-projector {
@@ -498,14 +502,14 @@ const virtualItems = isVirtualized
 	.orbit-section[data-orbit-items] .orbit-card {
 		aspect-ratio: 0.77;
 		background: var(--color-text-light, #f0f4f2);
-		border: 8px solid var(--color-text-light, #f0f4f2);
+		border: 3px solid var(--color-text-light, #f0f4f2);
 		border-radius: 0;
 		height: auto;
 		margin: 0;
 		transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
 		touch-action: manipulation;
 		-webkit-tap-highlight-color: transparent;
-		width: clamp(56px, 8.5vw, 150px);
+		width: min(13.5%, 180px);
 	}
 
 	.orbit-card:hover,
@@ -737,7 +741,7 @@ const virtualItems = isVirtualized
 		}
 
 		.orbit-section[data-orbit-items] .orbit-card {
-			border-width: 5px;
+			border-width: 2px;
 		}
 
 		.orbit-section[data-orbit-items] .orbit-card-content {
