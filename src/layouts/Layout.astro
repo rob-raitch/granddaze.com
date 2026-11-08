@@ -95,6 +95,7 @@ const currentYear = new Date().getFullYear();
 				alt: image.dataset.viewerAlt || image.alt,
 			}));
 			let activeImageIndex = 0;
+			let touchStart: { x: number; y: number } | undefined;
 
 			const updateViewer = () => {
 				const image = viewerImages[activeImageIndex];
@@ -174,6 +175,27 @@ const currentYear = new Date().getFullYear();
 			viewer?.querySelector('.image-viewer-close')?.addEventListener('click', closeViewer);
 			viewer?.querySelector('.image-viewer-previous')?.addEventListener('click', () => moveViewer(-1));
 			viewer?.querySelector('.image-viewer-next')?.addEventListener('click', () => moveViewer(1));
+			viewer?.addEventListener('touchstart', (event) => {
+				if (!viewer.classList.contains('is-open') || event.touches.length !== 1) {
+					touchStart = undefined;
+					return;
+				}
+
+				const touch = event.touches[0];
+				touchStart = { x: touch.clientX, y: touch.clientY };
+			}, { passive: true });
+			viewer?.addEventListener('touchend', (event) => {
+				if (!touchStart || !viewer.classList.contains('is-open')) return;
+
+				const touch = event.changedTouches[0];
+				const deltaX = touch.clientX - touchStart.x;
+				const deltaY = touch.clientY - touchStart.y;
+				touchStart = undefined;
+
+				if (Math.abs(deltaX) < 50 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.2) return;
+				moveViewer(deltaX < 0 ? 1 : -1);
+			}, { passive: true });
+			viewer?.addEventListener('touchcancel', () => { touchStart = undefined; }, { passive: true });
 			viewer?.addEventListener('click', (event) => {
 				if (event.target === viewer) closeViewer();
 			});

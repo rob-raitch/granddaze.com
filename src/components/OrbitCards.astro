@@ -1,6 +1,7 @@
 ---
 import { getImage, Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import projectorImage from '../assets/logos/projector-vectorportal.svg';
 
 interface OrbitCardItem {
 	title: string;
@@ -71,6 +72,11 @@ const virtualItems = isVirtualized
 	</header>
 
 	<div class="orbit-wrapper">
+		{virtualItems && (
+			<div class="orbit-projector" aria-hidden="true">
+				<img src={projectorImage.src} alt="" />
+			</div>
+		)}
 		<div class="orbit-ring" data-orbit-ring>
 			{cardItems.map((item, index) => (
 				<button
@@ -204,7 +210,8 @@ const virtualItems = isVirtualized
 					const x = Math.sin(angle) * radiusX;
 					const y = (1 - depth) * radiusY;
 					const z = depth * radiusZ;
-					const scale = 0.55 + depth * 0.45;
+					const isPrimary = Math.abs(angle) <= virtualStep / 2;
+					const scale = (0.55 + depth * 0.45) * (isPrimary ? 1.18 : 1);
 					const rotation = index >= cards.length / 2 - 1 && index <= cards.length / 2
 						? 0
 						: -angle;
@@ -444,12 +451,30 @@ const virtualItems = isVirtualized
 		height: clamp(460px, 40vw, 520px);
 	}
 
+	.orbit-projector {
+		align-items: center;
+		display: flex;
+		inset: 0;
+		justify-content: center;
+		pointer-events: none;
+		position: absolute;
+	}
+
+	.orbit-projector img {
+		height: 100%;
+		object-fit: contain;
+		opacity: 0.55;
+		transform: translateY(-28%);
+		width: min(86%, 680px);
+	}
+
 	.orbit-ring {
 		height: 100%;
 		position: absolute;
 		transform-style: preserve-3d;
 		transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
 		width: 100%;
+		z-index: 1;
 	}
 
 	.orbit-card {
@@ -478,7 +503,9 @@ const virtualItems = isVirtualized
 		height: auto;
 		margin: 0;
 		transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
-		width: clamp(40px, 8.5vw, 120px);
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
+		width: clamp(56px, 8.5vw, 150px);
 	}
 
 	.orbit-card:hover,
