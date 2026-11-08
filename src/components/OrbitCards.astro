@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface OrbitCardItem {
@@ -16,16 +16,55 @@ interface Props {
 	heading: string;
 	description?: string;
 	items: OrbitCardItem[];
+	overlayPlayer?: boolean;
+	visibleCards?: number;
+	autoplayInterval?: number;
 }
 
-const { heading, description, items } = Astro.props;
+const {
+	heading,
+	description,
+	items,
+	overlayPlayer = false,
+	visibleCards,
+	autoplayInterval,
+} = Astro.props;
 
 if (items.length === 0) {
 	throw new Error('OrbitCards requires at least one item.');
 }
+
+if (visibleCards !== undefined && (!Number.isInteger(visibleCards) || visibleCards < 1)) {
+	throw new Error('OrbitCards visibleCards must be a positive integer.');
+}
+
+if (autoplayInterval !== undefined && (!Number.isInteger(autoplayInterval) || autoplayInterval < 1)) {
+	throw new Error('OrbitCards autoplayInterval must be a positive integer.');
+}
+
+const isVirtualized = visibleCards !== undefined && visibleCards < items.length;
+const cardItems = isVirtualized ? items.slice(0, visibleCards) : items;
+const virtualItems = isVirtualized
+	? await Promise.all(items.map(async (item) => {
+		const image = await getImage({
+			src: item.image,
+			width: overlayPlayer ? 1200 : 560,
+			format: 'webp',
+		});
+
+		return { title: item.title, alt: item.alt, src: image.src };
+	}))
+	: undefined;
 ---
 
-<section class="orbit-section" data-orbit-carousel aria-label={heading}>
+<section
+	class="orbit-section"
+	data-orbit-carousel
+	data-overlay-player={overlayPlayer ? 'true' : undefined}
+	data-orbit-items={virtualItems ? JSON.stringify(virtualItems) : undefined}
+	data-autoplay-interval={autoplayInterval}
+	aria-label={heading}
+>
 	<header class="orbit-heading">
 		<h2>{heading}</h2>
 		{description && <p>{description}</p>}
@@ -33,11 +72,12 @@ if (items.length === 0) {
 
 	<div class="orbit-wrapper">
 		<div class="orbit-ring" data-orbit-ring>
-			{items.map((item, index) => (
+			{cardItems.map((item, index) => (
 				<button
 					class="orbit-card"
 					type="button"
 					data-orbit-card
+					data-item-index={index}
 					data-title={item.title}
 					data-subtitle={item.subtitle}
 					data-description={item.description}
@@ -47,13 +87,24 @@ if (items.length === 0) {
 					aria-label={`View details for ${item.title}`}
 					aria-current={index === 0 ? 'true' : undefined}
 				>
-					<Image
-						src={item.image}
-						alt=""
-						width={560}
-						class="orbit-card-image"
-						data-image-viewer-ignore
-					/>
+					{virtualItems ? (
+						<img
+							src={virtualItems[index].src}
+							alt=""
+							class="orbit-card-image"
+							data-viewer-alt={item.alt}
+							data-image-viewer-ignore={overlayPlayer ? '' : undefined}
+						/>
+					) : (
+						<Image
+							src={item.image}
+							alt=""
+							width={overlayPlayer ? 1200 : 560}
+							class="orbit-card-image"
+							data-viewer-alt={item.alt}
+							data-image-viewer-ignore={!overlayPlayer ? '' : undefined}
+						/>
+					)}
 					<span class="orbit-card-shade" aria-hidden="true"></span>
 					<span class="orbit-card-content">
 						<span class="orbit-card-title">{item.title}</span>
@@ -62,13 +113,28 @@ if (items.length === 0) {
 				</button>
 			))}
 		</div>
-		<button class="orbit-arrow orbit-arrow-previous" type="button" data-orbit-previous aria-label="Show previous card">
-			<span aria-hidden="true">←</span>
-		</button>
-		<button class="orbit-arrow orbit-arrow-next" type="button" data-orbit-next aria-label="Show next card">
-			<span aria-hidden="true">→</span>
-		</button>
+		{!virtualItems && (
+			<>
+				<button class="orbit-arrow orbit-arrow-previous" type="button" data-orbit-previous aria-label="Show previous card">
+					<span aria-hidden="true">←</span>
+				</button>
+				<button class="orbit-arrow orbit-arrow-next" type="button" data-orbit-next aria-label="Show next card">
+					<span aria-hidden="true">→</span>
+				</button>
+			</>
+		)}
 	</div>
+	{virtualItems && (
+		<div class="orbit-controls">
+			<button class="orbit-arrow orbit-arrow-previous" type="button" data-orbit-previous aria-label="Show previous card">
+				<span aria-hidden="true">←</span>
+			</button>
+			<span class="orbit-control-label">Rotate The Slide Tray</span>
+			<button class="orbit-arrow orbit-arrow-next" type="button" data-orbit-next aria-label="Show next card">
+				<span aria-hidden="true">→</span>
+			</button>
+		</div>
+	)}
 
 	<dialog class="orbit-dialog" data-orbit-dialog aria-label="Selected card details">
 		<button class="orbit-dialog-close" type="button" data-orbit-close aria-label="Close details">&times;</button>
@@ -97,20 +163,66 @@ if (items.length === 0) {
 		const dialogSubtitle = carousel.querySelector<HTMLParagraphElement>('[data-orbit-dialog-subtitle]');
 		const dialogDescription = carousel.querySelector<HTMLParagraphElement>('[data-orbit-dialog-description]');
 		const dialogLink = carousel.querySelector<HTMLAnchorElement>('[data-orbit-dialog-link]');
+		const overlayPlayer = carousel.dataset.overlayPlayer === 'true';
+		const virtualItems = carousel.dataset.orbitItems
+			? JSON.parse(carousel.dataset.orbitItems) as Array<{ title: string; alt: string; src: string }>
+			: undefined;
+		const autoplayInterval = Number(carousel.dataset.autoplayInterval);
 
 		if (!ring || !previousButton || !nextButton || !dialog || !closeButton || !dialogImage || !dialogTitle || !dialogSubtitle || !dialogDescription || !dialogLink) {
 			throw new Error('OrbitCards is missing required markup.');
 		}
 
 		let activeIndex = 0;
+		let virtualStart = 0;
+		let virtualPhase = 0;
+		let pendingDirection: -1 | 1 | undefined;
+		let autoplayTimer: number | undefined;
+		let transitionFallback: number | undefined;
+		const step = 360 / cards.length;
+		const virtualStep = cards.length > 1 ? (Math.PI * 0.9) / (cards.length - 1) : 0;
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+		if (virtualItems && cards.length >= virtualItems.length) {
+			throw new Error('OrbitCards virtualization requires more items than visible cards.');
+		}
 
 		const updateOrbit = () => {
-			const step = 360 / cards.length;
 			const cardWidth = cards[0]?.clientWidth || 220;
-			const stageWidth = ring.getBoundingClientRect().width;
+			const { width: stageWidth, height: stageHeight } = ring.getBoundingClientRect();
+
+			if (virtualItems) {
+				const maxAngle = virtualStep * (cards.length - 1) / 2;
+				const radiusX = Math.max(0, stageWidth / 2 - cardWidth * 0.35);
+				const radiusY = stageHeight * 0.22;
+				const radiusZ = Math.min(stageWidth * 0.3, 240);
+				const phase = virtualPhase / virtualStep;
+
+				cards.forEach((card, index) => {
+					const angle = -maxAngle + (index - phase) * virtualStep;
+					const depth = Math.cos(angle);
+					const x = Math.sin(angle) * radiusX;
+					const y = (1 - depth) * radiusY;
+					const z = depth * radiusZ;
+					const scale = 0.55 + depth * 0.45;
+					const rotation = index >= cards.length / 2 - 1 && index <= cards.length / 2
+						? 0
+						: -angle;
+
+					card.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotation}rad) scale(${scale})`;
+					card.style.zIndex = String(Math.round((depth + 1) * 50));
+					if (index === activeIndex) {
+						card.setAttribute('aria-current', 'true');
+					} else {
+						card.removeAttribute('aria-current');
+					}
+				});
+				return;
+			}
+
 			const radius = cards.length < 3
 				? cardWidth * 0.8
-				: Math.max(cardWidth * 0.8, Math.min(stageWidth * 0.43, cardWidth / (2 * Math.tan(Math.PI / cards.length))));
+				: Math.max(cardWidth * 0.8, Math.min(stageWidth * 0.56, cardWidth / (2 * Math.tan(Math.PI / cards.length))));
 
 			ring.style.transform = `rotateY(${-activeIndex * step}deg)`;
 			cards.forEach((card, index) => {
@@ -121,6 +233,74 @@ if (items.length === 0) {
 					card.removeAttribute('aria-current');
 				}
 			});
+		};
+
+		const setVirtualCard = (card: HTMLButtonElement, itemIndex: number) => {
+			if (!virtualItems) return;
+			const index = (itemIndex + virtualItems.length) % virtualItems.length;
+			const item = virtualItems[index];
+			const image = card.querySelector<HTMLImageElement>('.orbit-card-image');
+			const title = card.querySelector<HTMLElement>('.orbit-card-title');
+			const subtitle = card.querySelector<HTMLElement>('.orbit-card-subtitle');
+
+			if (!item || !image || !title) {
+				throw new Error('OrbitCards could not update a virtual card.');
+			}
+
+			card.dataset.itemIndex = String(index);
+			card.dataset.title = item.title;
+			card.dataset.alt = item.alt;
+			card.setAttribute('aria-label', `View details for ${item.title}`);
+			image.src = item.src;
+			image.dataset.viewerAlt = item.alt;
+			title.textContent = item.title;
+			if (subtitle) subtitle.textContent = '';
+		};
+
+		const finishVirtualMove = (direction: -1 | 1) => {
+			if (transitionFallback !== undefined) window.clearTimeout(transitionFallback);
+
+			if (direction === 1) {
+				const outgoing = cards.shift();
+				if (!outgoing) throw new Error('OrbitCards could not advance its virtual carousel.');
+				cards.push(outgoing);
+				ring.append(outgoing);
+				virtualStart = (virtualStart + 1) % virtualItems!.length;
+				setVirtualCard(outgoing, virtualStart + cards.length - 1);
+			} else {
+				const incoming = cards.pop();
+				if (!incoming) throw new Error('OrbitCards could not reverse its virtual carousel.');
+				cards.unshift(incoming);
+				ring.prepend(incoming);
+				virtualStart = (virtualStart - 1 + virtualItems!.length) % virtualItems!.length;
+				const image = incoming.querySelector<HTMLImageElement>('.orbit-card-image');
+				if (image) image.style.opacity = '0';
+				setVirtualCard(incoming, virtualStart);
+				if (image) requestAnimationFrame(() => { image.style.opacity = ''; });
+			}
+
+			activeIndex = 0;
+			virtualPhase = 0;
+			cards.forEach((card) => { card.style.transition = 'none'; });
+			updateOrbit();
+			cards.forEach((card) => card.getBoundingClientRect());
+			requestAnimationFrame(() => { cards.forEach((card) => { card.style.transition = ''; }); });
+			pendingDirection = undefined;
+		};
+
+		const stopAutoplay = () => {
+			if (autoplayTimer !== undefined) window.clearTimeout(autoplayTimer);
+			autoplayTimer = undefined;
+		};
+
+		const scheduleAutoplay = () => {
+			stopAutoplay();
+			if (!virtualItems || !autoplayInterval || reducedMotion.matches || document.hidden) return;
+
+			autoplayTimer = window.setTimeout(() => {
+				if (!dialog.open && !pendingDirection) move(1);
+				scheduleAutoplay();
+			}, autoplayInterval);
 		};
 
 		const showDetails = (card: HTMLButtonElement) => {
@@ -148,21 +328,67 @@ if (items.length === 0) {
 			dialog.showModal();
 		};
 
-		const move = (direction: number) => {
+		const move = (direction: -1 | 1, manual = false) => {
+			if (virtualItems) {
+				if (manual) scheduleAutoplay();
+				if (pendingDirection) return;
+				pendingDirection = direction;
+				if (reducedMotion.matches) {
+					finishVirtualMove(direction);
+				} else {
+					virtualPhase += direction * virtualStep;
+					activeIndex = (activeIndex + direction + cards.length) % cards.length;
+					updateOrbit();
+					transitionFallback = window.setTimeout(() => finishVirtualMove(direction), 700);
+				}
+				return;
+			}
+
 			activeIndex = (activeIndex + direction + cards.length) % cards.length;
 			updateOrbit();
 		};
 
 		cards.forEach((card, index) => {
 			card.addEventListener('click', () => {
-				activeIndex = index;
-				updateOrbit();
+				if (!virtualItems) {
+					activeIndex = index;
+					updateOrbit();
+				}
+
+				if (overlayPlayer) {
+					const image = card.querySelector('img');
+					if (!image) throw new Error('OrbitCards item is missing its image.');
+					stopAutoplay();
+					window.dispatchEvent(new CustomEvent('granddaze:open-image-viewer', {
+						detail: {
+							index: Number(card.dataset.itemIndex),
+							items: virtualItems ?? cards.map((visibleCard) => {
+								const cardImage = visibleCard.querySelector<HTMLImageElement>('img');
+								if (!cardImage) throw new Error('OrbitCards item is missing its image.');
+								return {
+									src: cardImage.currentSrc || cardImage.src,
+									alt: visibleCard.dataset.alt ?? '',
+								};
+							}),
+						},
+					}));
+					return;
+				}
+
 				showDetails(card);
 			});
 		});
-		previousButton.addEventListener('click', () => move(-1));
-		nextButton.addEventListener('click', () => move(1));
+		previousButton.addEventListener('click', () => move(-1, true));
+		nextButton.addEventListener('click', () => move(1, true));
+		ring.addEventListener('transitionend', (event) => {
+			if (event.propertyName === 'transform' && pendingDirection && cards.includes(event.target as HTMLButtonElement)) {
+				finishVirtualMove(pendingDirection);
+			}
+		});
 		closeButton.addEventListener('click', () => dialog.close());
+		dialog.addEventListener('close', scheduleAutoplay);
+		window.addEventListener('granddaze:close-image-viewer', scheduleAutoplay);
+		reducedMotion.addEventListener('change', scheduleAutoplay);
 		dialog.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape') {
 				event.preventDefault();
@@ -175,7 +401,9 @@ if (items.length === 0) {
 
 		const resizeObserver = new ResizeObserver(updateOrbit);
 		resizeObserver.observe(ring);
+		document.addEventListener('visibilitychange', scheduleAutoplay);
 		updateOrbit();
+		scheduleAutoplay();
 	});
 </script>
 
@@ -212,6 +440,10 @@ if (items.length === 0) {
 		position: relative;
 	}
 
+	.orbit-section[data-orbit-items] .orbit-wrapper {
+		height: clamp(460px, 40vw, 520px);
+	}
+
 	.orbit-ring {
 		height: 100%;
 		position: absolute;
@@ -238,6 +470,17 @@ if (items.length === 0) {
 		width: 220px;
 	}
 
+	.orbit-section[data-orbit-items] .orbit-card {
+		aspect-ratio: 0.77;
+		background: var(--color-text-light, #f0f4f2);
+		border: 8px solid var(--color-text-light, #f0f4f2);
+		border-radius: 0;
+		height: auto;
+		margin: 0;
+		transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease;
+		width: clamp(40px, 8.5vw, 120px);
+	}
+
 	.orbit-card:hover,
 	.orbit-card[aria-current='true'] {
 		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
@@ -245,6 +488,10 @@ if (items.length === 0) {
 
 	.orbit-card:not([aria-current='true']) {
 		pointer-events: none;
+	}
+
+	.orbit-section[data-orbit-items] .orbit-card:not([aria-current='true']) {
+		pointer-events: auto;
 	}
 
 	.orbit-card:focus-visible,
@@ -259,6 +506,14 @@ if (items.length === 0) {
 		height: 100%;
 		object-fit: cover;
 		width: 100%;
+	}
+
+	.orbit-section[data-orbit-items] .orbit-card-image {
+		transition: opacity 180ms ease;
+	}
+
+	.orbit-section[data-orbit-items] .orbit-card-title {
+		font-size: clamp(0.7rem, 1.4vw, 1rem);
 	}
 
 	.orbit-card-shade {
@@ -320,6 +575,36 @@ if (items.length === 0) {
 
 	.orbit-arrow-next {
 		right: 0;
+	}
+
+	.orbit-controls {
+		align-items: center;
+		display: flex;
+		gap: clamp(16px, 3vw, 36px);
+		justify-content: center;
+		margin: 12px auto 0;
+	}
+
+	.orbit-section[data-orbit-items] .orbit-arrow {
+		background: rgba(18, 33, 35, 0.6);
+		flex: 0 0 auto;
+		font-size: 2rem;
+		height: 48px;
+		position: static;
+		transform: none;
+		width: 48px;
+	}
+
+	.orbit-section[data-orbit-items] .orbit-arrow:hover {
+		transform: scale(1.12);
+	}
+
+	.orbit-control-label {
+		color: var(--color-summer-green, #a1b8aa);
+		font-family: var(--font-family-accent, Georgia, serif);
+		font-size: clamp(1.1rem, 2vw, 1.5rem);
+		letter-spacing: 0.04em;
+		text-align: center;
 	}
 
 	.orbit-dialog {
@@ -414,10 +699,22 @@ if (items.length === 0) {
 			height: 390px;
 		}
 
+		.orbit-section[data-orbit-items] .orbit-wrapper {
+			height: 360px;
+		}
+
 		.orbit-card {
 			height: 190px;
 			margin: -95px 0 0 -75px;
 			width: 150px;
+		}
+
+		.orbit-section[data-orbit-items] .orbit-card {
+			border-width: 5px;
+		}
+
+		.orbit-section[data-orbit-items] .orbit-card-content {
+			display: none;
 		}
 
 		.orbit-card-title {
@@ -426,13 +723,6 @@ if (items.length === 0) {
 
 		.orbit-card-subtitle {
 			font-size: 0.7rem;
-		}
-
-		.orbit-arrow {
-			background: rgba(18, 33, 35, 0.6);
-			font-size: 2.5rem;
-			height: 48px;
-			width: 48px;
 		}
 
 		.orbit-dialog {

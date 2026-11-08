@@ -20,5 +20,8 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
+# High-resolution source photos are kept locally; the optimized WebP copies are used by the site.
+src/assets/images/new-jpeg-images/
+
 # jetbrains setting folder
 .idea/

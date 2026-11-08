@@ -40,6 +40,7 @@ const currentYear = new Date().getFullYear();
 					<span>Home</span>
 				</a>
 				<a class:list={{ 'is-active': activeRoute === '/explore' }} href={href('/explore')} aria-current={activeRoute === '/explore' ? 'page' : undefined}>Explore</a>
+				<a class:list={{ 'is-active': activeRoute === '/gallery' }} href={href('/gallery')} aria-current={activeRoute === '/gallery' ? 'page' : undefined}>Gallery</a>
 				<a class:list={{ 'is-active': activeRoute === '/guide' }} href={href('/guide')} aria-current={activeRoute === '/guide' ? 'page' : undefined}>Local Guide</a>
 			</nav>
 		</header>
@@ -89,12 +90,16 @@ const currentYear = new Date().getFullYear();
 			const viewerImage = viewer?.querySelector('.image-viewer-image');
 			const viewerCaption = viewer?.querySelector('.image-viewer-caption');
 			const galleryImages = Array.from(document.querySelectorAll('main img:not([data-image-viewer-ignore])'));
+			let viewerImages = galleryImages.map((image) => ({
+				src: image.currentSrc || image.src,
+				alt: image.dataset.viewerAlt || image.alt,
+			}));
 			let activeImageIndex = 0;
 
 			const updateViewer = () => {
-				const image = galleryImages[activeImageIndex];
+				const image = viewerImages[activeImageIndex];
 				if (!image || !viewerImage || !viewerCaption) return;
-				viewerImage.src = image.currentSrc || image.src;
+				viewerImage.src = image.src;
 				viewerImage.alt = image.alt;
 				viewerCaption.textContent = image.alt;
 			};
@@ -103,31 +108,67 @@ const currentYear = new Date().getFullYear();
 				viewer?.classList.remove('is-open');
 				viewer?.setAttribute('aria-hidden', 'true');
 				document.body.classList.remove('is-viewer-open');
+				window.dispatchEvent(new CustomEvent('granddaze:close-image-viewer'));
+			};
+
+			const openViewer = (index: number, images = galleryImages.map((image) => ({
+				src: image.currentSrc || image.src,
+				alt: image.dataset.viewerAlt || image.alt,
+			}))) => {
+				if (images.length === 0 || index < 0 || index >= images.length) {
+					throw new Error('The image viewer received an invalid image selection.');
+				}
+				viewerImages = images;
+				activeImageIndex = index;
+				updateViewer();
+				viewer?.classList.add('is-open');
+				viewer?.setAttribute('aria-hidden', 'false');
+				document.body.classList.add('is-viewer-open');
 			};
 
 			const moveViewer = (direction: number) => {
-				activeImageIndex = (activeImageIndex + direction + galleryImages.length) % galleryImages.length;
+				activeImageIndex = (activeImageIndex + direction + viewerImages.length) % viewerImages.length;
 				updateViewer();
 			};
 
 			galleryImages.forEach((image, index) => {
+				if (image.closest('[data-overlay-player]')) return;
 				image.classList.add('image-viewer-trigger');
 				image.setAttribute('tabindex', '0');
 				image.setAttribute('role', 'button');
-				const openViewer = () => {
-					activeImageIndex = index;
-					updateViewer();
-					viewer?.classList.add('is-open');
-					viewer?.setAttribute('aria-hidden', 'false');
-					document.body.classList.add('is-viewer-open');
-				};
-				image.addEventListener('click', openViewer);
+				const openImage = () => openViewer(index);
+				image.addEventListener('click', openImage);
 				image.addEventListener('keydown', (event) => {
 					if (event.key === 'Enter' || event.key === ' ') {
 						event.preventDefault();
-						openViewer();
+						openImage();
 					}
 				});
+			});
+
+			window.addEventListener('granddaze:open-image-viewer', (event) => {
+				if (!(event instanceof CustomEvent)) return;
+				const detail: unknown = event.detail;
+				if (!detail || typeof detail !== 'object') {
+					throw new Error('OrbitCards requested the image viewer without image data.');
+				}
+
+				const { index, items } = detail as { index?: unknown; items?: unknown };
+				if (!Number.isInteger(index) || !Array.isArray(items) || items.length === 0) {
+					throw new Error('OrbitCards requested the image viewer with invalid image data.');
+				}
+
+				const images = items.map((item: unknown) => {
+					if (!item || typeof item !== 'object') {
+						throw new Error('OrbitCards image data must contain an image and alt text.');
+					}
+					const { src, alt } = item as { src?: unknown; alt?: unknown };
+					if (typeof src !== 'string' || typeof alt !== 'string') {
+						throw new Error('OrbitCards image data must contain an image and alt text.');
+					}
+					return { src, alt };
+				});
+				openViewer(index, images);
 			});
 
 			viewer?.querySelector('.image-viewer-close')?.addEventListener('click', closeViewer);

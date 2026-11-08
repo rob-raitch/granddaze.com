@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import OrbitCards from '../components/OrbitCards.astro';
+import { propertyPhotos } from '../data/property-photos';
+---
+
+<Layout title="Gallery" activeRoute="/gallery" description="Browse the Grand Daze property photo gallery.">
+	<section class="editorial-hero gallery-intro">
+		<p class="eyebrow">The whole picture</p>
+		<h1>Take a closer <em>look.</em></h1>
+		<p class="lede">Have fun with our slide tray below. Select any photo to open the full-screen viewer.</p>
+	</section>
+
+	<OrbitCards
+		heading="Grand Daze photo gallery"
+		description="Come visit to make your own personal gallery."
+		overlayPlayer
+		visibleCards={10}
+		autoplayInterval={8000}
+		items={propertyPhotos.map((photo) => ({
+			title: photo.title,
+			image: photo.image,
+			alt: photo.alt,
+		}))}
+	/>
+</Layout>
+
+<style>
+	.gallery-intro {
+		padding-bottom: clamp(44px, 7vw, 80px);
+	}
+
+	:global(.orbit-section) {
+		max-width: var(--content-width);
+	}
+</style>
