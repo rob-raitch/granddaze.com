@@ -52,9 +52,10 @@ const currentYear = new Date().getFullYear();
 			<div class="site-footer-content">
 				<span class="site-footer-subtitle">Looking for a different view?</span>
 				<div class="site-footer-brand">
-					<Image src={creeksideDazeLogo} alt="Creekside Daze" width={320} class="site-footer-brand-mark" />
+					<a href="https://creeksidedaze.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Creekside Daze">
+						<Image src={creeksideDazeLogo} alt="Creekside Daze" width={320} class="site-footer-brand-mark" />
+					</a>
 				</div>
-				<a class="site-footer-button" href="https://creeksidedaze.com" target="_blank" rel="noopener noreferrer">Creekside Daze <span aria-hidden="true">↗</span></a>
 				<div class="site-footer-links">
 					<div class="social-links" aria-label="Social media">
 						<a href="https://www.instagram.com/grand_daze_bahamas" target="_blank" rel="noreferrer" aria-label="Instagram">
@@ -87,7 +88,7 @@ const currentYear = new Date().getFullYear();
 			const viewer = document.querySelector('.image-viewer');
 			const viewerImage = viewer?.querySelector('.image-viewer-image');
 			const viewerCaption = viewer?.querySelector('.image-viewer-caption');
-			const galleryImages = Array.from(document.querySelectorAll('main img'));
+			const galleryImages = Array.from(document.querySelectorAll('main img:not([data-image-viewer-ignore])'));
 			let activeImageIndex = 0;
 
 			const updateViewer = () => {

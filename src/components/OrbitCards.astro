@@ -1,0 +1,458 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface OrbitCardItem {
+	title: string;
+	image: ImageMetadata | string;
+	alt: string;
+	subtitle?: string;
+	description?: string;
+	href?: string;
+	linkLabel?: string;
+}
+
+interface Props {
+	heading: string;
+	description?: string;
+	items: OrbitCardItem[];
+}
+
+const { heading, description, items } = Astro.props;
+
+if (items.length === 0) {
+	throw new Error('OrbitCards requires at least one item.');
+}
+---
+
+<section class="orbit-section" data-orbit-carousel aria-label={heading}>
+	<header class="orbit-heading">
+		<h2>{heading}</h2>
+		{description && <p>{description}</p>}
+	</header>
+
+	<div class="orbit-wrapper">
+		<div class="orbit-ring" data-orbit-ring>
+			{items.map((item, index) => (
+				<button
+					class="orbit-card"
+					type="button"
+					data-orbit-card
+					data-title={item.title}
+					data-subtitle={item.subtitle}
+					data-description={item.description}
+					data-alt={item.alt}
+					data-href={item.href}
+					data-link-label={item.linkLabel}
+					aria-label={`View details for ${item.title}`}
+					aria-current={index === 0 ? 'true' : undefined}
+				>
+					<Image
+						src={item.image}
+						alt=""
+						width={560}
+						class="orbit-card-image"
+						data-image-viewer-ignore
+					/>
+					<span class="orbit-card-shade" aria-hidden="true"></span>
+					<span class="orbit-card-content">
+						<span class="orbit-card-title">{item.title}</span>
+						{item.subtitle && <span class="orbit-card-subtitle">{item.subtitle}</span>}
+					</span>
+				</button>
+			))}
+		</div>
+		<button class="orbit-arrow orbit-arrow-previous" type="button" data-orbit-previous aria-label="Show previous card">
+			<span aria-hidden="true">←</span>
+		</button>
+		<button class="orbit-arrow orbit-arrow-next" type="button" data-orbit-next aria-label="Show next card">
+			<span aria-hidden="true">→</span>
+		</button>
+	</div>
+
+	<dialog class="orbit-dialog" data-orbit-dialog aria-label="Selected card details">
+		<button class="orbit-dialog-close" type="button" data-orbit-close aria-label="Close details">&times;</button>
+		<div class="orbit-dialog-image" data-orbit-dialog-image></div>
+		<div class="orbit-dialog-content">
+			<p class="orbit-dialog-subtitle" data-orbit-dialog-subtitle hidden></p>
+			<h3 data-orbit-dialog-title></h3>
+			<p class="orbit-dialog-description" data-orbit-dialog-description hidden></p>
+			<a class="orbit-dialog-link" data-orbit-dialog-link hidden></a>
+		</div>
+	</dialog>
+</section>
+
+<script>
+	const carousels = document.querySelectorAll<HTMLElement>('[data-orbit-carousel]');
+
+	carousels.forEach((carousel) => {
+		const ring = carousel.querySelector<HTMLElement>('[data-orbit-ring]');
+		const cards = Array.from(carousel.querySelectorAll<HTMLButtonElement>('[data-orbit-card]'));
+		const previousButton = carousel.querySelector<HTMLButtonElement>('[data-orbit-previous]');
+		const nextButton = carousel.querySelector<HTMLButtonElement>('[data-orbit-next]');
+		const dialog = carousel.querySelector<HTMLDialogElement>('[data-orbit-dialog]');
+		const closeButton = carousel.querySelector<HTMLButtonElement>('[data-orbit-close]');
+		const dialogImage = carousel.querySelector<HTMLDivElement>('[data-orbit-dialog-image]');
+		const dialogTitle = carousel.querySelector<HTMLHeadingElement>('[data-orbit-dialog-title]');
+		const dialogSubtitle = carousel.querySelector<HTMLParagraphElement>('[data-orbit-dialog-subtitle]');
+		const dialogDescription = carousel.querySelector<HTMLParagraphElement>('[data-orbit-dialog-description]');
+		const dialogLink = carousel.querySelector<HTMLAnchorElement>('[data-orbit-dialog-link]');
+
+		if (!ring || !previousButton || !nextButton || !dialog || !closeButton || !dialogImage || !dialogTitle || !dialogSubtitle || !dialogDescription || !dialogLink) {
+			throw new Error('OrbitCards is missing required markup.');
+		}
+
+		let activeIndex = 0;
+
+		const updateOrbit = () => {
+			const step = 360 / cards.length;
+			const cardWidth = cards[0]?.clientWidth || 220;
+			const stageWidth = ring.getBoundingClientRect().width;
+			const radius = cards.length < 3
+				? cardWidth * 0.8
+				: Math.max(cardWidth * 0.8, Math.min(stageWidth * 0.43, cardWidth / (2 * Math.tan(Math.PI / cards.length))));
+
+			ring.style.transform = `rotateY(${-activeIndex * step}deg)`;
+			cards.forEach((card, index) => {
+				card.style.transform = `rotateY(${index * step}deg) translateZ(${radius}px)`;
+				if (index === activeIndex) {
+					card.setAttribute('aria-current', 'true');
+				} else {
+					card.removeAttribute('aria-current');
+				}
+			});
+		};
+
+		const showDetails = (card: HTMLButtonElement) => {
+			const image = card.querySelector('img')?.cloneNode(true);
+			if (image instanceof HTMLImageElement) {
+				image.alt = card.dataset.alt ?? card.dataset.title ?? '';
+				dialogImage.replaceChildren(image);
+			}
+
+			dialogTitle.textContent = card.dataset.title ?? '';
+			dialogSubtitle.textContent = card.dataset.subtitle ?? '';
+			dialogSubtitle.hidden = !card.dataset.subtitle;
+			dialogDescription.textContent = card.dataset.description ?? '';
+			dialogDescription.hidden = !card.dataset.description;
+
+			if (card.dataset.href) {
+				dialogLink.href = card.dataset.href;
+				dialogLink.textContent = card.dataset.linkLabel || 'Learn more';
+				dialogLink.hidden = false;
+			} else {
+				dialogLink.removeAttribute('href');
+				dialogLink.hidden = true;
+			}
+
+			dialog.showModal();
+		};
+
+		const move = (direction: number) => {
+			activeIndex = (activeIndex + direction + cards.length) % cards.length;
+			updateOrbit();
+		};
+
+		cards.forEach((card, index) => {
+			card.addEventListener('click', () => {
+				activeIndex = index;
+				updateOrbit();
+				showDetails(card);
+			});
+		});
+		previousButton.addEventListener('click', () => move(-1));
+		nextButton.addEventListener('click', () => move(1));
+		closeButton.addEventListener('click', () => dialog.close());
+		dialog.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				dialog.close();
+			}
+		});
+		dialog.addEventListener('click', (event) => {
+			if (event.target === dialog) dialog.close();
+		});
+
+		const resizeObserver = new ResizeObserver(updateOrbit);
+		resizeObserver.observe(ring);
+		updateOrbit();
+	});
+</script>
+
+<style>
+	.orbit-section {
+		background: var(--color-blue-dianne, #2a494c);
+		color: var(--color-text-light, #f0f4f2);
+		margin: 0 auto;
+		max-width: calc(var(--content-width, 1200px) - 40px);
+		overflow: hidden;
+		padding: clamp(48px, 8vw, 88px) clamp(20px, 5vw, 64px);
+	}
+
+	.orbit-heading {
+		margin: 0 auto 24px;
+		max-width: 640px;
+		text-align: center;
+	}
+
+	.orbit-heading h2 {
+		font-size: clamp(2.4rem, 5vw, 4.5rem);
+	}
+
+	.orbit-heading p {
+		color: var(--color-summer-green, #a1b8aa);
+		margin-top: 16px;
+	}
+
+	.orbit-wrapper {
+		height: clamp(360px, 46vw, 500px);
+		margin: 0 auto;
+		max-width: 900px;
+		perspective: 1200px;
+		position: relative;
+	}
+
+	.orbit-ring {
+		height: 100%;
+		position: absolute;
+		transform-style: preserve-3d;
+		transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+		width: 100%;
+	}
+
+	.orbit-card {
+		background: var(--color-bg-dark, #122123);
+		border: 0;
+		border-radius: 12px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+		color: white;
+		cursor: pointer;
+		height: 280px;
+		left: 50%;
+		margin: -140px 0 0 -110px;
+		overflow: hidden;
+		position: absolute;
+		top: 50%;
+		transform-style: preserve-3d;
+		transition: box-shadow 300ms ease;
+		width: 220px;
+	}
+
+	.orbit-card:hover,
+	.orbit-card[aria-current='true'] {
+		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+	}
+
+	.orbit-card:not([aria-current='true']) {
+		pointer-events: none;
+	}
+
+	.orbit-card:focus-visible,
+	.orbit-arrow:focus-visible,
+	.orbit-dialog button:focus-visible,
+	.orbit-dialog a:focus-visible {
+		outline: 3px solid var(--color-summer-green, #a1b8aa);
+		outline-offset: 4px;
+	}
+
+	.orbit-card-image {
+		height: 100%;
+		object-fit: cover;
+		width: 100%;
+	}
+
+	.orbit-card-shade {
+		background: linear-gradient(transparent 35%, rgba(0, 0, 0, 0.78));
+		inset: 0;
+		position: absolute;
+	}
+
+	.orbit-card-content {
+		bottom: 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		left: 16px;
+		position: absolute;
+		right: 16px;
+		text-align: right;
+		text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+	}
+
+	.orbit-card-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		line-height: 1.2;
+	}
+
+	.orbit-card-subtitle {
+		font-size: 0.8rem;
+		line-height: 1.3;
+	}
+
+	.orbit-arrow {
+		align-items: center;
+		background: transparent;
+		border: 0;
+		border-radius: 50%;
+		color: rgba(240, 244, 242, 0.75);
+		cursor: pointer;
+		display: flex;
+		font-size: 3.5rem;
+		height: 64px;
+		justify-content: center;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		transition: color 200ms ease, transform 200ms ease;
+		width: 64px;
+		z-index: 2;
+	}
+
+	.orbit-arrow:hover {
+		color: white;
+		transform: translateY(-50%) scale(1.12);
+	}
+
+	.orbit-arrow-previous {
+		left: 0;
+	}
+
+	.orbit-arrow-next {
+		right: 0;
+	}
+
+	.orbit-dialog {
+		background: var(--color-bg-dark, #122123);
+		border: 1px solid rgba(161, 184, 170, 0.25);
+		border-radius: 16px;
+		color: var(--color-text-light, #f0f4f2);
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		margin: auto;
+		max-height: min(560px, calc(100dvh - 32px));
+		max-width: min(920px, calc(100vw - 32px));
+		overflow: auto;
+		padding: 0;
+		position: fixed;
+		width: 100%;
+	}
+
+	.orbit-dialog[open] {
+		display: grid;
+	}
+
+	.orbit-dialog::backdrop {
+		background: rgba(0, 0, 0, 0.82);
+		backdrop-filter: blur(4px);
+	}
+
+	.orbit-dialog-image {
+		min-height: 360px;
+	}
+
+	.orbit-dialog-image img {
+		display: block;
+		height: 100%;
+		min-height: 360px;
+		object-fit: cover;
+		width: 100%;
+	}
+
+	.orbit-dialog-content {
+		align-self: center;
+		padding: clamp(28px, 5vw, 56px);
+	}
+
+	.orbit-dialog-content h3 {
+		font-size: clamp(2rem, 4vw, 3rem);
+	}
+
+	.orbit-dialog-subtitle {
+		color: var(--color-summer-green, #a1b8aa);
+		font-size: 0.8rem;
+		letter-spacing: 0.12em;
+		margin-bottom: 12px;
+		text-transform: uppercase;
+	}
+
+	.orbit-dialog-description {
+		color: rgba(240, 244, 242, 0.82);
+		margin-top: 20px;
+	}
+
+	.orbit-dialog-link {
+		border-bottom: 1px solid currentColor;
+		color: var(--color-summer-green, #a1b8aa);
+		display: inline-block;
+		margin-top: 28px;
+		padding-bottom: 5px;
+	}
+
+	.orbit-dialog-close {
+		background: rgba(18, 33, 35, 0.72);
+		border: 0;
+		border-radius: 50%;
+		color: white;
+		cursor: pointer;
+		font-size: 2rem;
+		height: 44px;
+		line-height: 1;
+		position: absolute;
+		right: 12px;
+		top: 12px;
+		width: 44px;
+		z-index: 1;
+	}
+
+	@media (max-width: 768px) {
+		.orbit-section {
+			padding-left: 12px;
+			padding-right: 12px;
+		}
+
+		.orbit-wrapper {
+			height: 390px;
+		}
+
+		.orbit-card {
+			height: 190px;
+			margin: -95px 0 0 -75px;
+			width: 150px;
+		}
+
+		.orbit-card-title {
+			font-size: 1rem;
+		}
+
+		.orbit-card-subtitle {
+			font-size: 0.7rem;
+		}
+
+		.orbit-arrow {
+			background: rgba(18, 33, 35, 0.6);
+			font-size: 2.5rem;
+			height: 48px;
+			width: 48px;
+		}
+
+		.orbit-dialog {
+			grid-template-columns: 1fr;
+			max-height: calc(100dvh - 32px);
+			max-width: min(440px, calc(100vw - 32px));
+		}
+
+		.orbit-dialog-image,
+		.orbit-dialog-image img {
+			height: 42vh;
+			min-height: 220px;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.orbit-ring,
+		.orbit-card,
+		.orbit-arrow {
+			transition: none;
+		}
+	}
+</style>
