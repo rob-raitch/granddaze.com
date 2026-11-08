@@ -1,55 +1,32 @@
 ---
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import primaryBedroom from '../assets/images/primary-bedroom.webp';
-import primaryBedroomTwo from '../assets/images/primary-bedroom2.webp';
-import primaryBedroomEnsuite from '../assets/images/primary-bedroom-ensuite.webp';
-import bedroom2 from '../assets/images/bedroom2.webp';
-import bedroom2ensuite from '../assets/images/bedroom2-ensuite.webp';
-import bedroom3 from '../assets/images/bedroom3.webp';
-import bedroom3ensuite from '../assets/images/bedroom3-ensuite.webp';
-import downstairs from '../assets/images/downstairs.webp';
-import laundry3 from '../assets/images/laundry3.webp';
-import mainLiving from '../assets/images/main-living.webp';
+import { propertyPhotos } from '../data/property-photos';
 
 const destinationFeatures = [
     {
-		images: [
-			{ src: downstairs, alt: 'Lower living area' },
-			{ src: laundry3, alt: 'Laundry area' },
-            { src: mainLiving, alt: 'Upper living area' },
-		],
+		images: propertyPhotos.slice(0, 3),
 		label: 'Family Getaway',
 		eyebrow: 'Relax',
 		title: 'Around the villa.',
 		description: 'Everything for a perfect getaway.',
 	},
 	{
-		images: [
-			{ src: primaryBedroomEnsuite, alt: 'Master bedroom ensuite bath' },
-			{ src: primaryBedroomTwo, alt: 'Master bedroom seating area' },
-			{ src: primaryBedroom, alt: 'Master bedroom' },
-		],
+		images: propertyPhotos.slice(3, 6),
 		label: 'Master Suite',
 		eyebrow: 'Stay awhile',
 		title: 'Wake up somewhere worth lingering.',
 		description: 'Light-filled rooms, soft textures, and a view that makes slow mornings feel effortless.',
 	},
 	{
-		images: [
-			{ src: bedroom2ensuite, alt: 'Second bedroom ensuite bath' },
-			{ src: bedroom2, alt: 'Second bedroom' },
-		],
+		images: propertyPhotos.slice(6, 9),
 		label: 'Second bedroom',
 		eyebrow: 'Make it yours',
 		title: 'A generous place to land.',
 		description: 'Every corner is designed for easy days, shared stories, and time together.',
 	},
     {
-		images: [
-			{ src: bedroom3ensuite, alt: 'Third bedroom ensuite bath' },
-			{ src: bedroom3, alt: 'Third bedroom' },
-		],
+		images: propertyPhotos.slice(9, 12),
 		label: 'Third bedroom',
 		eyebrow: 'Settle in',
 		title: 'Details that make the difference.',
@@ -72,7 +49,7 @@ const destinationFeatures = [
 				<div class="destination-images">
 					{feature.images.map((image, imageIndex) => (
 						<Image
-							src={image.src}
+							src={image.image}
 							alt={image.alt}
 							width={900}
 							class={`destination-image destination-image-${(imageIndex % 3) + 1}`}

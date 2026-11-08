@@ -10,6 +10,7 @@ keeping Grand Daze's own visual identity.
 | :--- | :--- |
 | `/` | Landing page |
 | `/explore` | Destination overview |
+| `/gallery` | Orbiting photo gallery |
 | `/guide` | Guest resources and local links |
 | `/credits` | Site and creative credits |
 | `/styleguide` | Brand, typography, color, and asset reference |
@@ -24,6 +25,16 @@ The site uses two local display fonts registered through Astro:
 Shared color and layout tokens are defined in
 [`src/styles/global.css`](src/styles/global.css). Logo variants and font files
 are kept in `src/assets/`.
+
+The 67 optimized property photos are stored in
+`src/assets/images/property-photos/` and indexed in
+`src/data/property-photos.ts`. Their numbered IDs are placeholders to make
+manual grouping easier. The original, full-resolution JPEGs in
+`src/assets/images/new-jpeg-images/` are kept locally and excluded from Git.
+The photo lists in `src/pages/explore.astro` can be rearranged as the images
+are categorized. The Gallery shows ten cards at a time on a perspective arc,
+with the center pair facing forward and the outer cards angled around the
+carousel. It advances every eight seconds.
 
 ## Development
 
