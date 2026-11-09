@@ -1,13 +1,13 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import { propertyPhotos } from '../data/property-photos';
 
-const heroGallery = propertyPhotos.slice(0, 5).map((photo) => ({
-	src: photo.image,
+const heroPhotos = await Promise.all(propertyPhotos.map(async (photo) => ({
+	src: (await getImage({ src: photo.image, width: 560, format: 'webp' })).src,
 	alt: photo.alt,
 	label: photo.title,
-}));
+})));
 ---
 
 <Layout title="Home" activeRoute="/" description="Grand Daze — a family Bahamian Retreat.">
@@ -19,10 +19,10 @@ const heroGallery = propertyPhotos.slice(0, 5).map((photo) => ({
 			<a class="button-link" href={`${import.meta.env.BASE_URL}/explore/`}>Begin exploring <span aria-hidden="true">↗</span></a>
 		</div>
 		<div class="home-hero-mark">
-			<div class="hero-gallery">
-				{heroGallery.map((image, index) => (
+			<div class="hero-gallery" data-hero-gallery data-hero-photos={JSON.stringify(heroPhotos)}>
+				{heroPhotos.slice(0, 5).map((image, index) => (
 					<div class={`hero-gallery-card hero-gallery-card-${index + 1}`}>
-						<Image src={image.src} alt={image.alt} width={560} />
+						<img src={image.src} alt={image.alt} data-viewer-alt={image.alt} />
 						<span>{image.label}</span>
 					</div>
 				))}
@@ -30,6 +30,90 @@ const heroGallery = propertyPhotos.slice(0, 5).map((photo) => ({
 			<span>*Click any image for a closer look</span>
 		</div>
 	</section>
+	<script>
+		interface HeroPhoto {
+			src: string;
+			alt: string;
+			label: string;
+		}
+
+		const gallery = document.querySelector<HTMLElement>('[data-hero-gallery]');
+		if (!gallery) throw new Error('The home page is missing its hero photo gallery.');
+
+		const cards = Array.from(gallery.querySelectorAll<HTMLElement>('.hero-gallery-card'));
+		const photos = JSON.parse(gallery.dataset.heroPhotos ?? 'null') as HeroPhoto[] | null;
+		if (!photos || cards.length === 0 || photos.length <= cards.length) {
+			throw new Error('The home hero gallery requires more photos than visible cards.');
+		}
+
+		const photoElements = cards.map((card) => {
+			const image = card.querySelector<HTMLImageElement>('img');
+			const label = card.querySelector<HTMLSpanElement>('span');
+			if (!image || !label) {
+				throw new Error('A home hero gallery card is missing its image or label.');
+			}
+			return { image, label };
+		});
+
+		const shuffle = (items: HeroPhoto[]) => {
+			for (let index = items.length - 1; index > 0; index--) {
+				const swapIndex = Math.floor(Math.random() * (index + 1));
+				[items[index], items[swapIndex]] = [items[swapIndex], items[index]];
+			}
+			return items;
+		};
+
+		let photoQueue = shuffle([...photos]);
+		let nextPhotoIndex = cards.length;
+		let nextCardIndex = 0;
+		let lastPhoto = photoQueue[cards.length - 1];
+		let rotationTimer: number | undefined;
+
+		cards.forEach((card, index) => {
+			const photo = photoQueue[index];
+			const { image, label } = photoElements[index];
+			image.src = photo.src;
+			image.alt = photo.alt;
+			image.dataset.viewerAlt = photo.alt;
+			label.textContent = photo.label;
+			card.setAttribute('aria-label', photo.alt);
+		});
+
+		const refillPhotoQueue = () => {
+			photoQueue = shuffle([...photos]);
+			if (photoQueue[0].src === lastPhoto.src) {
+				const swapIndex = 1 + Math.floor(Math.random() * (photoQueue.length - 1));
+				[photoQueue[0], photoQueue[swapIndex]] = [photoQueue[swapIndex], photoQueue[0]];
+			}
+			nextPhotoIndex = 0;
+		};
+
+		const rotatePhoto = () => {
+			if (nextPhotoIndex >= photoQueue.length) refillPhotoQueue();
+			const photo = photoQueue[nextPhotoIndex];
+			const { image, label } = photoElements[nextCardIndex];
+			image.src = photo.src;
+			image.alt = photo.alt;
+			image.dataset.viewerAlt = photo.alt;
+			label.textContent = photo.label;
+			cards[nextCardIndex].setAttribute('aria-label', photo.alt);
+			lastPhoto = photo;
+			nextPhotoIndex++;
+			nextCardIndex = (nextCardIndex + 1) % cards.length;
+		};
+
+		const scheduleRotation = () => {
+			if (rotationTimer !== undefined) window.clearTimeout(rotationTimer);
+			if (document.hidden) return;
+			rotationTimer = window.setTimeout(() => {
+				rotatePhoto();
+				scheduleRotation();
+			}, 4000);
+		};
+
+		document.addEventListener('visibilitychange', scheduleRotation);
+		scheduleRotation();
+	</script>
 	<section class="home-note" aria-labelledby="home-note-title">
 		<p class="eyebrow">Another memorable daze</p>
 		<h2 id="home-note-title">Bringing you the Bahamas vibe</h2>

@@ -33,6 +33,8 @@ photo there to set its title and descriptive alt text; the number matches the
 photo filename (for example, entry `1` labels `property-photo-01.webp`). The
 original, full-resolution JPEGs in
 `src/assets/images/new-jpeg-images/` are kept locally and excluded from Git.
+The home hero starts with five randomly selected photos and replaces one card
+every four seconds, cycling through all photos before reshuffling.
 The photo lists in `src/pages/explore.astro` can be rearranged as the images
 are categorized. The Gallery shows six cards at a time on a perspective arc,
 with the center pair facing forward and the outer cards angled around the
