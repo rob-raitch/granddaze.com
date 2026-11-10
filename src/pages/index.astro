@@ -65,9 +65,7 @@ const heroPhotos = await Promise.all(propertyPhotos.map(async (photo) => ({
 
 		let photoQueue = shuffle([...photos]);
 		let nextPhotoIndex = cards.length;
-		let nextCardIndex = 0;
 		let lastPhoto = photoQueue[cards.length - 1];
-		let rotationTimer: number | undefined;
 
 		cards.forEach((card, index) => {
 			const photo = photoQueue[index];
@@ -77,6 +75,8 @@ const heroPhotos = await Promise.all(propertyPhotos.map(async (photo) => ({
 			image.dataset.viewerAlt = photo.alt;
 			label.textContent = photo.label;
 			card.setAttribute('aria-label', photo.alt);
+
+			card.addEventListener('animationiteration', () => rotatePhoto(index));
 		});
 
 		const refillPhotoQueue = () => {
@@ -88,31 +88,18 @@ const heroPhotos = await Promise.all(propertyPhotos.map(async (photo) => ({
 			nextPhotoIndex = 0;
 		};
 
-		const rotatePhoto = () => {
+		const rotatePhoto = (cardIndex: number) => {
 			if (nextPhotoIndex >= photoQueue.length) refillPhotoQueue();
 			const photo = photoQueue[nextPhotoIndex];
-			const { image, label } = photoElements[nextCardIndex];
+			const { image, label } = photoElements[cardIndex];
 			image.src = photo.src;
 			image.alt = photo.alt;
 			image.dataset.viewerAlt = photo.alt;
 			label.textContent = photo.label;
-			cards[nextCardIndex].setAttribute('aria-label', photo.alt);
+			cards[cardIndex].setAttribute('aria-label', photo.alt);
 			lastPhoto = photo;
 			nextPhotoIndex++;
-			nextCardIndex = (nextCardIndex + 1) % cards.length;
 		};
-
-		const scheduleRotation = () => {
-			if (rotationTimer !== undefined) window.clearTimeout(rotationTimer);
-			if (document.hidden) return;
-			rotationTimer = window.setTimeout(() => {
-				rotatePhoto();
-				scheduleRotation();
-			}, 4000);
-		};
-
-		document.addEventListener('visibilitychange', scheduleRotation);
-		scheduleRotation();
 	</script>
 	<section class="home-note" aria-labelledby="home-note-title">
 		<p class="eyebrow">Another memorable daze</p>
