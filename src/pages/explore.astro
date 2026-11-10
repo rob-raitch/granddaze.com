@@ -3,33 +3,43 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import { propertyPhotos } from '../data/property-photos';
 
+const photosById = new Map(propertyPhotos.map((photo) => [photo.id, photo]));
+const getPhoto = (id: string) => {
+	const photo = photosById.get(id);
+	if (!photo) {
+		throw new Error(`Explore page references missing property photo "${id}".`);
+	}
+
+	return photo;
+};
+
 const destinationFeatures = [
     {
-		images: propertyPhotos.slice(0, 3),
+		images: ['photo-64', 'photo-66', 'photo-54'].map(getPhoto),
 		label: 'Family Getaway',
 		eyebrow: 'Relax',
 		title: 'Around the villa.',
 		description: 'Everything for a perfect getaway.',
 	},
 	{
-		images: propertyPhotos.slice(3, 6),
+		images: ['photo-11', 'photo-46', 'photo-09'].map(getPhoto),
 		label: 'Master Suite',
 		eyebrow: 'Stay awhile',
 		title: 'Wake up somewhere worth lingering.',
 		description: 'Light-filled rooms, soft textures, and a view that makes slow mornings feel effortless.',
 	},
 	{
-		images: propertyPhotos.slice(6, 9),
+		images: ['photo-03', 'photo-04', 'photo-42'].map(getPhoto),
 		label: 'Second bedroom',
 		eyebrow: 'Make it yours',
 		title: 'A generous place to land.',
 		description: 'Every corner is designed for easy days, shared stories, and time together.',
 	},
     {
-		images: propertyPhotos.slice(9, 12),
-		label: 'Third bedroom',
-		eyebrow: 'Settle in',
-		title: 'Details that make the difference.',
+		images: ['photo-33', 'photo-32', 'photo-30'].map(getPhoto),
+		label: 'Bunkroom',
+		eyebrow: 'For the kids',
+		title: 'Making every day memorable.',
 		description: 'Thoughtful spaces give every day at Grand Daze a little more room to breathe.',
 	},
 ];
@@ -40,7 +50,10 @@ const destinationFeatures = [
 		<p class="eyebrow">The island, slowly revealed</p>
 		<h1>Make room for <em>more</em> than a getaway.</h1>
 		<p class="lede">Grand Daze is a relaxing home base for sunny days, memorable adventures, and the easy rhythm of the Bahamas.</p>
-        <p>*Click any image on the page for a closer look</p>
+		<p class="explore-image-prompt">
+			*Click any image on the page for a closer look, or check out the
+			<a href={`${import.meta.env.BASE_URL}/gallery/`}> full gallery</a>.
+		</p>
 	</section>
 
 	{destinationFeatures.map((feature, index) => (
@@ -69,3 +82,9 @@ const destinationFeatures = [
 	))}
 
 </Layout>
+
+<style>
+	.explore-image-prompt {
+		font-size: 0.875rem;
+	}
+</style>
