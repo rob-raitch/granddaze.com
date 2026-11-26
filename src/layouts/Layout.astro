@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { title, description = 'Grand Daze — a family Bahamian retreat.', activeRoute = '/' } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 const href = (route: string) => `${base}${route === '/' ? '' : route}`;
 const currentYear = new Date().getFullYear();
 ---

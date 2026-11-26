@@ -8,6 +8,7 @@ const heroPhotos = await Promise.all(propertyPhotos.map(async (photo) => ({
 	alt: photo.alt,
 	label: photo.title,
 })));
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 ---
 
 <Layout title="Home" activeRoute="/" description="Grand Daze — a family Bahamian Retreat.">
@@ -16,7 +17,7 @@ const heroPhotos = await Promise.all(propertyPhotos.map(async (photo) => ({
 			<p class="eyebrow">Luxury inspired family retreat</p>
 			<h1>Elbow Cay<br /><em>Abacos, Bahamas</em></h1>
 			<p class="lede">Grand Daze is a place for sun-soaked days, shared meals, and making memories at an unhurried pace.</p>
-			<a class="button-link" href={`${import.meta.env.BASE_URL}/explore/`}>Begin exploring <span aria-hidden="true">↗</span></a>
+			<a class="button-link" href={`${base}/explore/`}>Begin exploring <span aria-hidden="true">↗</span></a>
 		</div>
 		<div class="home-hero-mark">
 			<div class="hero-gallery" data-hero-gallery data-hero-photos={JSON.stringify(heroPhotos)}>

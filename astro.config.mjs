@@ -32,6 +32,6 @@ export default defineConfig({
       },
     },
   ],
-  site: 'https://rob-raitch.github.io',
-  base: '/granddaze.com',
+  site: 'https://granddaze.com',
+  base: '/',
 });
